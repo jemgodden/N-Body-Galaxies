@@ -2,49 +2,13 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
-# Constants:
-G = 6.67e-11
-pc = 3.086e16  # Parsec
-sm = 1.989e30  # Solar Mass
-yr = 60 * 60 * 24 * 365  # 1 year in seconds
-
-# Simulation time conditions:
-time_step = 2e5 * yr  # Time between each step.
-time_run = 2e9 * yr  # Total time simulation is run for.
-frames = 10  # Number of intervals between images being shown.
-no_step = time_run / time_step  # Total number of steps in simulation.
-interval = no_step / frames  #
-image_time_step = time_run / (frames * 1e9 * yr)  # Time between images being shown.
-
-# Galaxy 1 starting conditions:
-mg1 = 1e11 * sm  # Mass of primary galaxy.
-xg1 = 0  # x position of primary galaxy.
-yg1 = 0  # y position of primary galaxy.
-zg1 = 0  # y position of primary galaxy.
-vxg1 = 0  # x velcoity of primary galaxy.
-vyg1 = 75e3  # y velcotiy of primary galaxy.
-vzg1 = 0  # z velocity of primary galaxy.
-
-# Galaxy 2 starting conditions:
-mg2 = 1e11 * sm  # Mass of secondary galaxy.
-xg2 = 60e3 * pc  # x position of secondary galaxy.
-yg2 = 250e3 * pc  # y position of secondary galaxy.
-zg2 = 0  # z position of secondary galaxy.
-vxg2 = 0  # x velcoity of secondary galaxy.
-vyg2 = -75e3  # y velocity of secondary galaxy.
-vzg2 = 0  # z velocity of secondary galaxy.
-
-# Galaxy ring conditions
-no_rings = 5  # Number of rings.
-no_rp = 6  # Number of particles in innermost ring.
-ring_rad = 2.5e3 * pc  # Radius of innermost ring from galaxy centre.
+from IntData import *
 
 objects = []  # List of all objects in galaxy.
 
 
 class Body:
-    def __init__(self, name, m, x, y, z, vx, vy, vz, saved_x, saved_y, saved_z, image_x, image_y, image_z, colour):
+    def __init__(self, name, m, x, y, z, vx, vy, vz, colour):
         self.name = name  # Name of body.
         self.m = m  # Mass of body.
         self.x = x  # x position of body.
@@ -119,71 +83,10 @@ class Body:
         return fx, fy, fz
 
 
-# class Cell:
-#     def __init__(self, min, width, pp, pm):
-#         self.min = []
-#         self.width = width
-#         self.centre = self.centre_calc
-#         self.no_part = 0
-#         self.pp = [[]]
-#         self.pm = []
-#         self.ppm = self.ppm_calc
-#         self.M = np.sum(self.pm)
-#         self.com = self.com_calc
-#         self.children = []
-#         self.leaf = False
-#
-#     def min(self):
-#         return self.min
-#
-#     def width(self):
-#         return self.width
-#
-#     def centre(self):
-#         return self.centre
-#
-#     def no_part(self):
-#         return self.no_part
-#
-#     def pm(self):
-#         return self.pm
-#
-#     def M(self):
-#         return self.M
-#
-#     def com(self):
-#         return self.com
-#
-#     def children(self):
-#         return self.children
-#
-#     def leaf(self):
-#         return self.leaf
-#
-#     def centre_calc(self):
-#         self.centre[0] = self.min[0] + (self.width / 2)
-#         self.centre[1] = self.min[1] + (self.width / 2)
-#         self.centre[2] = self.min[2] + (self.width / 2)
-#
-#     def ppm_calc(self):
-#         for j in range(len(pm)):
-#             self.ppm[0] = pp[j][0] * pm[j]
-#             self.ppm[1] = pp[j][1] * pm[j]
-#             self.ppm[2] = pp[j][2] * pm[j]
-#
-#     def com_calc(self):
-#         self.com[0] = self.ppm[0] / self.M
-#         self.com[1] = self.ppm[1] / self.M
-#         self.com[2] = self.ppm[2] / self.M
-#
-#     def create_children(self):
-#         aaaaaaaaaaaaaaaaaaaaaa
-
-
 def create_galaxies():  # Creates two interacting galaxies using Body class.
-    objects.append(Body("Primary", mg1, xg1, yg1, zg1, vxg1, vyg1, vzg1, 0, 0, 0, 0, 0, 0, 'bo'))
+    objects.append(Body("Primary", mg1, xg1, yg1, zg1, vxg1, vyg1, vzg1, 'bo'))
     # Creates primary galaxy and adds it to list of bodies.
-    objects.append(Body("Secondary", mg2, xg2, yg2, zg2, vxg2, vyg2, vzg2, 0, 0, 0, 0, 0, 0, 'ro'))
+    objects.append(Body("Secondary", mg2, xg2, yg2, zg2, vxg2, vyg2, vzg2, 'ro'))
     # Creates secondary galaxy and adds it to list of bodies.
 
 
@@ -198,21 +101,21 @@ def create_rings():  # Creates set of rings for each galaxy.
             y = r * math.sin(angle)  # x and y coordinates of each particle in ring.
             vx = v * math.sin(angle)
             vy = -v * math.cos(angle)  # x and y velocities of each particle in ring.
-            objects.append(Body("Test", 1, xg1 + x, yg1 + y, zg1, vxg1 + vx, vyg1 + vy, vzg1, 0, 0, 0, 0, 0, 0, 'g.'))
-                                                     # Adding particles to list of Bodies. Test particles, mass = 1kg.
+            objects.append(Body("Test", 1, xg1 + x, yg1 + y, zg1, vxg1 + vx, vyg1 + vy, vzg1, 'c.'))
+                                                # Adding ring particles to list of Bodies. Test particles, mass = 1kg.
 
-    # for k in range(0, no_rings):  # Creating rings for secondary galaxy.
-    #     r = (k + 1) * ring_rad  # Radius of each ring.
-    #     n = (k + 1) * no_rp  # Number of particles in each ring.
-    #     v = math.sqrt(G * mg2 / r)  # Velocity of particles in each ring.
-    #     for i in range(0, n):
-    #         angle = 2 * math.pi * i / n  # Assigning particles to a ring formation.
-    #         x = r * math.cos(angle)
-    #         y = r * math.sin(angle)  # x and y coordinates of each particle in ring.
-    #         vx = v * math.sin(angle)
-    #         vy = -v * math.cos(angle)  # x and y velocities of each particle in ring.
-    #         objects.append(Body('Test', 1, xg2 + x, yg2 + y, zg2, vxg2 + vx, vyg2 + vy, vzg2, 0, 0, 0, 0, 0, 0, 'yo'))
-                                                    # Adding particles to list of Bodies. Test particles, mass = 1kg.
+    for k in range(0, no_rings):  # Creating rings for secondary galaxy.
+        r = (k + 1) * ring_rad  # Radius of each ring.
+        n = (k + 1) * no_rp  # Number of particles in each ring.
+        v = math.sqrt(G * mg2 / r)  # Velocity of particles in each ring.
+        for i in range(0, n):
+            angle = 2 * math.pi * i / n  # Assigning particles to a ring formation.
+            x = r * math.cos(angle)
+            y = r * math.sin(angle)  # x and y coordinates of each particle in ring.
+            vx = v * math.sin(angle)
+            vy = -v * math.cos(angle)  # x and y velocities of each particle in ring.
+            objects.append(Body('Test', 1, xg2 + x, yg2 + y, zg2, vxg2 + vx, vyg2 + vy, vzg2, 'm.'))
+                                                # Adding ring particles to list of Bodies. Test particles, mass = 1kg.
 
 
 def leapfrog_initial(bodies):  # Produces kick start for the leapfrog algorithm.
@@ -221,9 +124,6 @@ def leapfrog_initial(bodies):  # Produces kick start for the leapfrog algorithm.
         body.saved_x.append(body.x)
         body.saved_y.append(body.y)  # Appends initial positions of each body to a
         body.saved_z.append(body.z)  # list of saved positions for that body.
-        body.image_x.append(body.x)
-        body.image_y.append(body.y)  # Appends initial positions of each body to a
-        body.image_z.append(body.z)  # list of plotted positions for that body.
 
     force = {}
     for body in bodies:
@@ -248,10 +148,6 @@ def leapfrog_initial(bodies):  # Produces kick start for the leapfrog algorithm.
         body.x += body.vx * time_step
         body.y += body.vy * time_step  # Uses half step in velocity to calculate new position,
         body.z += body.vz * time_step  # using x_1 = x_0 + v_0.5 * dt.
-
-        body.x = body.x - objects[0].saved_x[-1]
-        body.y = body.y - objects[0].saved_y[-1]
-        body.z = body.z - objects[0].saved_z[-1]
 
         body.saved_x.append(body.x)
         body.saved_y.append(body.y)  # Saving new position to list of previous positions of body.
@@ -295,18 +191,40 @@ def leapfrog(bodies):  # Updates the position and velocity of each particle usin
                 body.y += body.vy * time_step  # Uses new velocity to calculate new position,
                 body.z += body.vz * time_step  # using x_i+1 = x_i + v_i+0.5 * dt.
 
-                body.x = body.x - objects[0].saved_x[-1]
-                body.y = body.y - objects[0].saved_y[-1]  # THIS WORKS THE SAME AS IN NBCode3.py !!!!!!! SIMPLER!!!
-                body.z = body.z - objects[0].saved_z[-1]
-
                 body.saved_x.append(body.x)
                 body.saved_y.append(body.y)  # Saving new position to list of previous positions of body.
                 body.saved_z.append(body.z)
 
-                if step % interval == 0 or step == no_step - 1:
-                    body.image_x.append(body.x)
-                    body.image_y.append(body.y)  # Saving new position to list of positions that will be plotted.
-                    body.image_z.append(body.z)
+
+def centring(bodies):  # Centres the images of the interaction to a certain point.
+    dx = []
+    dy = []  # List of the change in position that each particle will undergo to be centred.
+    dz = []
+    for k in range(len(objects[0].saved_x)):
+        x = (objects[0].saved_x[k] + objects[1].saved_x[k]) / 2
+        y = (objects[0].saved_y[k] + objects[1].saved_y[k]) / 2  # Calculates point equidistant from tow galaxies in
+        z = (objects[0].saved_z[k] + objects[1].saved_z[k]) / 2  # in order to centre image in between them.
+        dx.append(x)
+        dy.append(y)  # Making lists of changes in position.
+        dz.append(z)
+    for body in bodies:
+        for j in range(len(objects[0].saved_x)):
+            body.saved_x[j] += - dx[j]
+            body.saved_y[j] += - dy[j]  # Altering positions of each particle to centre the images.
+            body.saved_z[j] += - dz[j]
+    for body in bodies:
+        for i in range(len(objects[0].saved_x)):
+            if i % (interval - 1) == 0 or i == no_step:
+                body.image_x.append(body.saved_x[i])
+                body.image_y.append(body.saved_y[i])  # Saving new position to list of positions that will be plotted.
+                body.image_z.append(body.saved_z[i])
+
+
+def info():
+    print("\n\nThere are", tot_rp, "particles in one galaxy's disk.\n")  # Prints total number of particles in a
+                                                                         # galaxy's disk.
+    print("There are a total of", tot_part, "particles in the simulation.\n")  # Prints total number of particles
+                                                                               # in a simulation.
 
 
 def pericentre_calc():  # Calculates the pericentre of the interaction and the time at which it occurs.
@@ -318,17 +236,41 @@ def pericentre_calc():  # Calculates the pericentre of the interaction and the t
         pericentre = math.sqrt(xpc + ypc + zpc)  # Calculate pericentre.
         pericentres.append(pericentre)
     min_pericentre = min(pericentres)  # Minimum value of pericentre found in list.
-    min_pericentre_pc = min_pericentre / (1e3 * pc)
-    t = ((pericentres.index(min(pericentres)) + 1) * time_step) / (1e9 * yr)  # Min pericentre position in list
-                                                                              # used to find time.
+    min_pericentre_pc = min_pericentre / kpc
+    t = ((pericentres.index(min(pericentres)) + 1) * time_step) / Gyr  # Min pericentre position in list used
+                                                                       # to find time.
+    print("Pericentre of interaction =", round(min_pericentre_pc, 2), "kpc, occurring at t =", round(t, 2), "Gyrs.\n")
+                                                            # Prints value of pericentre and time at which it occurs.
+    print("The time between images is", image_time_step, "Gyrs.\n\n")  # Prints time in between images.
 
-    print("\nPericentre =", round(min_pericentre_pc, 2), "kpc at t =", round(t, 2), "Gyrs.\n")
+    file = open("PericentreInfo.txt", "w+")
+    file.write("{0} {1}".format(min_pericentre_pc, t))  # Prints value of pericentre and time it occurs to a file.
+    file.close()
 
-    print("The time between images is", image_time_step, "Gyrs\n")  # Prints time in between images.
+
+def path_print():
+    file1 = open("PriGalPath.txt", "w+")  # Prints coordinates of primary galaxy at every time step to a file.
+    for i in range(len(objects[0].saved_x)):
+        file1.write("{0} {1} {2}\n".format(objects[0].saved_x[i], objects[0].saved_y[i], objects[0].saved_z[i]))
+    file1.close()
+
+    file2 = open("SecGalPath.txt", "w+")  # Prints coordinates of secondary galaxy at every time step to a file.
+    for i in range(len(objects[1].saved_x)):
+        file2.write("{0} {1} {2}\n".format(objects[1].saved_x[i], objects[1].saved_y[i], objects[1].saved_z[i]))
+    file2.close()
+
+
+def position_print(bodies):  # Printing position of all particles at the time an image is seen.
+    for i in range(len(objects[0].image_x)):
+        txt_title = i * image_time_step
+        file = open("image_%.2f.txt" % txt_title, "w+")  # Opens/creates a file with the name of the time of image.
+        for body in bodies:
+            file.write("{0} {1} {2} {3}\n".format(body.image_x[i], body.image_y[i], body.image_z[i], body.colour))
+        file.close()
 
 
 def plot():  # Plot images of interaction.
-    print("Producing Images.")
+    print("Producing Images...")
     for j in range(len(objects)):  # Shows last image first, so plot in reverse to see in order.
         objects[j].saved_x.reverse()
         objects[j].saved_y.reverse()
@@ -339,7 +281,7 @@ def plot():  # Plot images of interaction.
     for i in range(len(objects[0].image_x)):  # Plots data of each time step on a separate figure.
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1, projection='3d')
-        title = ((-i + 10) * image_time_step)
+        title = (-i + frames) * image_time_step
         ax.set_title('t = %.2f Gyrs' % title, fontsize=10)  # Title the figure with the time of interaction.
         ax.set_xlabel('X', fontsize=10)
         ax.set_ylabel('Y', fontsize=10)  # Set axis labels.
@@ -347,14 +289,11 @@ def plot():  # Plot images of interaction.
         ax.set_xlim(-2e21, 2e21)
         ax.set_ylim(-2e21, 2e21)  # Set axis limits.
         ax.set_zlim(-2e11, 2e11)
-        ax.plot3D(objects[0].saved_x, objects[0].saved_y, objects[0].saved_z, 'b-')  # Plotting path of primary galaxy.
-        ax.plot3D(objects[1].saved_x, objects[1].saved_y, objects[1].saved_z, 'r-')  # Plotting path of secondary
-                                                                                     # galaxy.
+        ax.plot3D(objects[0].saved_x, objects[0].saved_y, objects[0].saved_z, path1)  # Plotting primary galaxy's path.
+        ax.plot3D(objects[1].saved_x, objects[1].saved_y, objects[1].saved_z, path2)  # Plotting secondary galaxy's
+                                                                                      # path.
         for j in range(len(objects)):  # Plotting all objects on figure.
-            a = [objects[j].image_x[i]]
-            b = [objects[j].image_y[i]]
-            c = [objects[j].image_z[i]]
-            ax.plot3D(a, b, c, objects[j].colour)
+            ax.plot3D([objects[j].image_x[i]], [objects[j].image_y[i]], [objects[j].image_z[i]], objects[j].colour)
 
 
 def main():  # Calling all functions in order.
@@ -367,7 +306,15 @@ def main():  # Calling all functions in order.
 
     leapfrog(objects)
 
+    centring(objects)
+
+    info()
+
     pericentre_calc()
+
+    path_print()
+
+    position_print(objects)
 
     plot()
 
