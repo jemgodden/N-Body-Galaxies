@@ -10,8 +10,8 @@ sm = 1.989e30  # Solar Mass
 yr = 60 * 60 * 24 * 365  # 1 year in seconds
 
 # Simulation time conditions:
-time_step = 2e6 * yr  # Time between each step.
-time_run = 2e7 * yr  # Total time simulation is run for.
+time_step = 2e5 * yr  # Time between each step.
+time_run = 2e9 * yr  # Total time simulation is run for.
 frames = 10  # Number of intervals between images being shown.
 no_step = time_run / time_step  # Total number of steps in simulation.
 interval = no_step / frames  #
@@ -36,7 +36,7 @@ vyg2 = -75e3  # y velocity of secondary galaxy.
 vzg2 = 0  # z velocity of secondary galaxy.
 
 # Galaxy ring conditions
-no_rings = 4  # Number of rings.
+no_rings = 5  # Number of rings.
 no_rp = 6  # Number of particles in innermost ring.
 ring_rad = 2.5e3 * pc  # Radius of innermost ring from galaxy centre.
 
@@ -44,8 +44,7 @@ objects = []  # List of all objects in galaxy.
 
 
 class Body:
-    def __init__(self, name, m, x, y, z, vx, vy, vz, saved_x, saved_y, saved_z, saved_vx, saved_vy, saved_vz, image_x,
-                 image_y, image_z, colour):
+    def __init__(self, name, m, x, y, z, vx, vy, vz, saved_x, saved_y, saved_z, image_x, image_y, image_z, colour):
         self.name = name  # Name of body.
         self.m = m  # Mass of body.
         self.x = x  # x position of body.
@@ -57,9 +56,6 @@ class Body:
         self.saved_x = []  # Array of all x position values of body.
         self.saved_y = []  # Array of all y position values of body.
         self.saved_z = []  # Array of all z position values of body.
-        self.saved_vx = []  # Array of all x velocity values of body.
-        self.saved_vy = []  # Array of all y velocity values of body.
-        self.saved_vz = []  # Array of all z velcoity values of body.
         self.image_x = []  # Array of all x position values of body, used for images.
         self.image_y = []  # Array of all y position values of body, used for images.
         self.image_z = []  # Array of all z position values of body, used for images.
@@ -98,15 +94,6 @@ class Body:
     def saved_z(self):
         return self.saved_z
 
-    def saved_vx(self):
-        return self.saved_vx
-
-    def saved_vy(self):
-        return self.saved_vy
-
-    def saved_vz(self):
-        return self.saved_vz
-
     def image_x(self):
         return self.image_x
 
@@ -132,10 +119,71 @@ class Body:
         return fx, fy, fz
 
 
+# class Cell:
+#     def __init__(self, min, width, pp, pm):
+#         self.min = []
+#         self.width = width
+#         self.centre = self.centre_calc
+#         self.no_part = 0
+#         self.pp = [[]]
+#         self.pm = []
+#         self.ppm = self.ppm_calc
+#         self.M = np.sum(self.pm)
+#         self.com = self.com_calc
+#         self.children = []
+#         self.leaf = False
+#
+#     def min(self):
+#         return self.min
+#
+#     def width(self):
+#         return self.width
+#
+#     def centre(self):
+#         return self.centre
+#
+#     def no_part(self):
+#         return self.no_part
+#
+#     def pm(self):
+#         return self.pm
+#
+#     def M(self):
+#         return self.M
+#
+#     def com(self):
+#         return self.com
+#
+#     def children(self):
+#         return self.children
+#
+#     def leaf(self):
+#         return self.leaf
+#
+#     def centre_calc(self):
+#         self.centre[0] = self.min[0] + (self.width / 2)
+#         self.centre[1] = self.min[1] + (self.width / 2)
+#         self.centre[2] = self.min[2] + (self.width / 2)
+#
+#     def ppm_calc(self):
+#         for j in range(len(pm)):
+#             self.ppm[0] = pp[j][0] * pm[j]
+#             self.ppm[1] = pp[j][1] * pm[j]
+#             self.ppm[2] = pp[j][2] * pm[j]
+#
+#     def com_calc(self):
+#         self.com[0] = self.ppm[0] / self.M
+#         self.com[1] = self.ppm[1] / self.M
+#         self.com[2] = self.ppm[2] / self.M
+#
+#     def create_children(self):
+#         aaaaaaaaaaaaaaaaaaaaaa
+
+
 def create_galaxies():  # Creates two interacting galaxies using Body class.
-    objects.append(Body("Primary", mg1, xg1, yg1, zg1, vxg1, vyg1, vzg1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'bo'))
+    objects.append(Body("Primary", mg1, xg1, yg1, zg1, vxg1, vyg1, vzg1, 0, 0, 0, 0, 0, 0, 'bo'))
     # Creates primary galaxy and adds it to list of bodies.
-    objects.append(Body("Secondary", mg2, xg2, yg2, zg2, vxg2, vyg2, vzg2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ro'))
+    objects.append(Body("Secondary", mg2, xg2, yg2, zg2, vxg2, vyg2, vzg2, 0, 0, 0, 0, 0, 0, 'ro'))
     # Creates secondary galaxy and adds it to list of bodies.
 
 
@@ -150,8 +198,8 @@ def create_rings():  # Creates set of rings for each galaxy.
             y = r * math.sin(angle)  # x and y coordinates of each particle in ring.
             vx = v * math.sin(angle)
             vy = -v * math.cos(angle)  # x and y velocities of each particle in ring.
-            objects.append(Body("Test", 1, xg1 + x, yg1 + y, zg1, vxg1 + vx, vyg1 + vy, vzg1, 0, 0, 0, 0, 0, 0, 0, 0,
-                                0, 'g.'))  # Adding particles to list of Bodies. Test particles, mass = 1kg.
+            objects.append(Body("Test", 1, xg1 + x, yg1 + y, zg1, vxg1 + vx, vyg1 + vy, vzg1, 0, 0, 0, 0, 0, 0, 'g.'))
+                                                     # Adding particles to list of Bodies. Test particles, mass = 1kg.
 
     # for k in range(0, no_rings):  # Creating rings for secondary galaxy.
     #     r = (k + 1) * ring_rad  # Radius of each ring.
@@ -163,25 +211,57 @@ def create_rings():  # Creates set of rings for each galaxy.
     #         y = r * math.sin(angle)  # x and y coordinates of each particle in ring.
     #         vx = v * math.sin(angle)
     #         vy = -v * math.cos(angle)  # x and y velocities of each particle in ring.
-    #         objects.append(Body('Test', 1, xg2 + x, yg2 + y, zg2, vxg2 + vx, vyg2 + vy, vzg2, 0, 0, 0, 0, 0, 0, 0, 0,
-    #         0, 'yo'))  # Adding particles to list of Bodies. Test particles, mass = 1kg.
+    #         objects.append(Body('Test', 1, xg2 + x, yg2 + y, zg2, vxg2 + vx, vyg2 + vy, vzg2, 0, 0, 0, 0, 0, 0, 'yo'))
+                                                    # Adding particles to list of Bodies. Test particles, mass = 1kg.
 
 
-def position_update(bodies):  # Updates the position and velocity of each particle.
+def leapfrog_initial(bodies):  # Produces kick start for the leapfrog algorithm.
     print("Calculating...")
-    step = 0
+    for body in bodies:
+        body.saved_x.append(body.x)
+        body.saved_y.append(body.y)  # Appends initial positions of each body to a
+        body.saved_z.append(body.z)  # list of saved positions for that body.
+        body.image_x.append(body.x)
+        body.image_y.append(body.y)  # Appends initial positions of each body to a
+        body.image_z.append(body.z)  # list of plotted positions for that body.
+
+    force = {}
+    for body in bodies:
+        total_fx = total_fy = total_fz = 0.0  # Sets force for all bodies to 0.
+        for other in bodies:
+            if body is other:  # Checking that not calculating force of a body on itself.
+                continue
+            if other.name != "Test":  # Does not calculate force due to ring/test particles.
+                fx, fy, fz = body.force_calc(other)
+                total_fx += fx
+                total_fy += fy  # Add together forces of al other bodies acting on that body.
+                total_fz += fz
+        force[body] = (total_fx, total_fy, total_fz)
+
+    for body in bodies:  # Kick start position and velocities for all bodies.
+        fx, fy, fz = force[body]
+
+        body.vx += (fx / body.m) * (time_step / 2)
+        body.vy += (fy / body.m) * (time_step / 2)  # Calculates initial half step for velocity in each direction,
+        body.vz += (fz / body.m) * (time_step / 2)  # using v_0.5 = v_0 + a * (dt/2), where a = F(x_0)/m.
+
+        body.x += body.vx * time_step
+        body.y += body.vy * time_step  # Uses half step in velocity to calculate new position,
+        body.z += body.vz * time_step  # using x_1 = x_0 + v_0.5 * dt.
+
+        body.x = body.x - objects[0].saved_x[-1]
+        body.y = body.y - objects[0].saved_y[-1]
+        body.z = body.z - objects[0].saved_z[-1]
+
+        body.saved_x.append(body.x)
+        body.saved_y.append(body.y)  # Saving new position to list of previous positions of body.
+        body.saved_z.append(body.z)
+
+
+def leapfrog(bodies):  # Updates the position and velocity of each particle using a leapfrog algorithm.
+    step = 1
     percent = 0.0
     print(percent)
-    for body in bodies:  # Appending initial positions and velocities to saved list of all positions and velocities.
-        body.saved_x.append(body.x)
-        body.saved_y.append(body.y)
-        body.saved_z.append(body.z)
-        body.saved_vx.append(body.vx)
-        body.saved_vy.append(body.vy)
-        body.saved_vz.append(body.vz)
-        body.image_x.append(body.x)
-        body.image_y.append(body.y)  # Appending initial positions to list of plotted positions.
-        body.image_z.append(body.z)
     while True:
         step += 1
         for a in range(100):
@@ -204,20 +284,20 @@ def position_update(bodies):  # Updates the position and velocity of each partic
                         total_fz += fz
                 force[body] = (total_fx, total_fy, total_fz)
 
-            for body in bodies:  # Updating position and velocities for all bodies at time step.
+            for body in bodies:
                 fx, fy, fz = force[body]
 
                 body.vx += (fx / body.m) * time_step
-                body.vy += (fy / body.m) * time_step  # Update body's velocity using v = at, where a = F/m.
-                body.vz += (fz / body.m) * time_step
+                body.vy += (fy / body.m) * time_step  # Calculates the new velocity in each direction,
+                body.vz += (fz / body.m) * time_step  # using v_i+1.5 = v_i+0.5 + a * dt, where a = F(x_i)/m.
 
-                body.saved_vx.append(body.vx)
-                body.saved_vy.append(body.vy)  # Saving new velocity to list of previous velocities of body.
-                body.saved_vz.append(body.vz)
+                body.x += body.vx * time_step
+                body.y += body.vy * time_step  # Uses new velocity to calculate new position,
+                body.z += body.vz * time_step  # using x_i+1 = x_i + v_i+0.5 * dt.
 
-                body.x += body.vx * time_step + (0.5 * (fx / body.m) * time_step ** 2)  # Update body's position using
-                body.y += body.vy * time_step + (0.5 * (fy / body.m) * time_step ** 2)  # s = ut + 0.5at^2, where
-                body.z += body.vz * time_step + (0.5 * (fz / body.m) * time_step ** 2)  # a = F/m.
+                body.x = body.x - objects[0].saved_x[-1]
+                body.y = body.y - objects[0].saved_y[-1]  # THIS WORKS THE SAME AS IN NBCode3.py !!!!!!! SIMPLER!!!
+                body.z = body.z - objects[0].saved_z[-1]
 
                 body.saved_x.append(body.x)
                 body.saved_y.append(body.y)  # Saving new position to list of previous positions of body.
@@ -283,7 +363,9 @@ def main():  # Calling all functions in order.
 
     create_rings()
 
-    position_update(objects)
+    leapfrog_initial(objects)
+
+    leapfrog(objects)
 
     pericentre_calc()
 
