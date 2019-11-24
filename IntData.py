@@ -1,9 +1,11 @@
 # Simulation options:
 rewind = False  # Option to run the simulation backwards.
 initial_txt = False  # Option to read the initial conditions from a text file.
+secondary_gal = True  # Option to run the primary galaxy in isolation, with no secondary galaxy perturbing it.
 secondary_disk = True  # Option to include a disk of particles as part of the Secondary Galaxy.
 calc_energy = True  # Option to calculate energy during the simulation.
 centre_mid = True  # Option to view the centre, between the two galaxies, of the interaction.
+centre_pri = False  # Option to view the Primary Galaxy, during the interaction.
 
 # Constants:
 G = 6.67e-11  # Gravitational constant.
@@ -36,6 +38,19 @@ vyg1 = 110 * km_s  # y velocity of primary galaxy.
 vzg1 = 0  # z velocity of primary galaxy.
 path1 = "b-"  # Colour of path for primary galaxy being plotted.
 
+# Primary galaxy disk conditions:
+dr1 = 20 * kpc  # Radius of disk if primary galaxy.
+no_rings1 = 6  # Number of rings in primary galaxy.
+ring_rad1 = dr1 / no_rings1  # Radius of innermost ring from primary galaxy centre.
+no_rp1 = 4  # Number of particles in innermost ring of primary galaxy.
+tot_rp1 = no_rp1 * (sum(range(0, no_rings1 + 1)))  # Total number of particles in a disk of primary galaxy.
+
+# Primary galaxy dark matter halo conditions:
+M_vir1 = 9e11 * sm  # Virial mass of the primary galaxy's dark matter halo.
+R_s1 = 15 * kpc  # Scale radius of primary galaxy's dark matter halo.
+c1 = 12  # Concentration of primary galaxy's dark matter halo.
+R_vir1 = c1 * R_s1  # Virial radius of primary galaxy's dark matter halo.
+
 # Secondary galaxy starting conditions:
 mg2 = 1e11 * sm  # Mass of secondary galaxy.
 xg2 = 120 * kpc  # x position of secondary galaxy.
@@ -47,15 +62,24 @@ vzg2 = 0  # z velocity of secondary galaxy.
 path2 = "r-"  # Colour of path for secondary galaxy being plotted.
 
 # Secondary galaxy disk conditions:
-no_rings = 4  # Number of rings in galaxy.
-ring_rad = 4 * kpc  # Radius of innermost ring from galaxy centre.
-no_rp = 4  # Number of particles in innermost ring of galaxy.
-tot_rp = no_rp * (sum(range(0, no_rings + 1)))  # Total number of particles in a disk of galaxy.
+dr2 = 20 * kpc  # Radius of disk if secondary galaxy.
+no_rings2 = 6  # Number of rings in secondary galaxy.
+ring_rad2 = dr2 / no_rings2  # Radius of innermost ring from secondary galaxy centre.
+no_rp2 = 4  # Number of particles in innermost ring of secondary galaxy.
+tot_rp2 = no_rp2 * (sum(range(0, no_rings2 + 1)))  # Total number of particles in a disk of secondary galaxy.
+
+# Secondary galaxy dark matter halo conditions:
+M_vir2 = 9e11 * sm  # Virial mass of the secondary galaxy's dark matter halo.
+R_s2 = 15 * kpc  # Scale radius of secondary galaxy's dark matter halo.
+c2 = 12  # Concentration of secondary galaxy's dark matter halo.
+R_vir2 = c2 * R_s2  # Virial radius of secondary galaxy's dark matter halo.
 
 # Total number of particles in simulation:
-tot_part = tot_rp + 2  # Total number of particles in the simulation.
+tot_part = tot_rp1 + 1  # Total number of particles in the simulation.
+if secondary_gal:
+    tot_part = tot_part + 1  # Total number of particles in the simulation.
 if secondary_disk:
-    tot_part = tot_part + tot_rp  # Total number of particles in the simulation.
+    tot_part = tot_part + tot_rp2  # Total number of particles in the simulation.
 
 '''
 To-Do list:

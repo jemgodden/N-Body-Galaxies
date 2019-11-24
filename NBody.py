@@ -17,7 +17,7 @@ class Body:
         self.m = m  # Mass of body.
         self.xyz = position  # Array of x, y and z position of body.
         self.vxyz = velocity  # Array of x, y and z velocities of body.
-        self.axyz = [0] * 3  # Array of x, y and z acceleration of body.
+        self.axyz = [0, 0, 0]  # Array of x, y and z acceleration of body.
         self.saved_xyz = [[], [], []]  # Array of all x, y and z position values of body.
         self.colour = colour  # Colour of body on images.
 
@@ -69,36 +69,43 @@ def make_directories():  # Checks directories exist and makes them if not.
 def create_galaxies():  # Creates two interacting galaxies using Body class.
     objects.append(Body("Primary", mg1, [xg1, yg1, zg1], [vxg1, vyg1, vzg1], 'bo'))
     # Creates primary galaxy and adds it to list of bodies.
-    objects.append(Body("Secondary", mg2, [xg2, yg2, zg2], [vxg2, vyg2, vzg2], 'ro'))
-    # Creates secondary galaxy and adds it to list of bodies.
+    if secondary_gal:
+        objects.append(Body("Secondary", mg2, [xg2, yg2, zg2], [vxg2, vyg2, vzg2], 'ro'))
+        # Creates secondary galaxy and adds it to list of bodies.
 
 
 def create_rings():  # Creates set of rings for each galaxy.
-    for k in range(0, no_rings):  # Creating rings for primary galaxy.
-        r = (k + 1) * ring_rad  # Radius of each ring.
-        n = (k + 1) * no_rp  # Number of particles in each ring.
-        v = math.sqrt(G * mg1 / r)  # Velocity of particles in each ring.
+    for k in range(0, no_rings1):  # Creating rings for primary galaxy.
+        r = (k + 1) * ring_rad1  # Radius of each ring.
+        n = (k + 1) * no_rp1  # Number of particles in each ring.
+        v = math.sqrt((G * mg1 / r) - ((G * M_vir1) / (math.log(1 + c1) - (c1 / (1 + c1)))) *
+                      (((r / (r + R_s1)) - (math.log(1 + r / R_s1))) / r))  # Velocity of particles in each ring.
         for i in range(0, n):
-            angle = 2 * math.pi * i / n  # Assigning particles to a ring formation.
-            x = r * math.cos(angle)
-            y = r * math.sin(angle)  # x and y coordinates of each particle in ring.
-            vx = v * math.sin(angle)
-            vy = -v * math.cos(angle)  # x and y velocities of each particle in ring.
-            objects.append(Body("Test", 1, [xg1 + x, yg1 + y, zg1], [vxg1 + vx, vyg1 + vy, vzg1], 'c.'))
+            theta = 2 * math.pi * i / n  # Assigning particles to a ring formation.
+            x = r * math.cos(theta)
+            y = r * math.sin(theta)
+            z = 0
+            vx = v * math.sin(theta)
+            vy = -v * math.cos(theta)  # x and y velocities of each particle in ring.
+            vz = 0
+            objects.append(Body("Test", 1, [xg1 + x, yg1 + y, zg1 + z], [vxg1 + vx, vyg1 + vy, vzg1 + vz], 'c.'))
                                                 # Adding ring particles to list of Bodies. Test particles, mass = 1kg.
 
     if secondary_disk:
-        for k in range(0, no_rings):  # Creating rings for secondary galaxy.
-            r = (k + 1) * ring_rad  # Radius of each ring.
-            n = (k + 1) * no_rp  # Number of particles in each ring.
-            v = math.sqrt(G * mg2 / r)  # Velocity of particles in each ring.
+        for k in range(0, no_rings2):  # Creating rings for secondary galaxy.
+            r = (k + 1) * ring_rad2  # Radius of each ring.
+            n = (k + 1) * no_rp2  # Number of particles in each ring.
+            v = math.sqrt((G * mg2 / r) - ((G * M_vir2) / (math.log(1 + c2) - (c2 / (1 + c2)))) *
+                          (((r / (r + R_s2)) - (math.log(1 + r / R_s2))) / r))  # Velocity of particles in each ring.
             for i in range(0, n):
                 angle = 2 * math.pi * i / n  # Assigning particles to a ring formation.
                 x = r * math.cos(angle)
                 y = r * math.sin(angle)  # x and y coordinates of each particle in ring.
+                z = 0
                 vx = v * math.sin(angle)
                 vy = -v * math.cos(angle)  # x and y velocities of each particle in ring.
-                objects.append(Body('Test', 1, [xg2 + x, yg2 + y, zg2], [vxg2 + vx, vyg2 + vy, vzg2], 'm.'))
+                vz = 0
+                objects.append(Body('Test', 1, [xg2 + x, yg2 + y, zg2 + z], [vxg2 + vx, vyg2 + vy, vzg2 + vz], 'm.'))
                                                 # Adding ring particles to list of Bodies. Test particles, mass = 1kg.
 
 
@@ -125,33 +132,93 @@ def read_initial_conditions():  # Reads in initial conditions, of all particles,
     file.close()                                                                         # information read from file.
 
 
-def leapfrog_initial(bodies, step, step_ke, step_pe):  # Produces kick start for the leapfrog algorithm.
-    print("Calculating...")
-    position_print(bodies, step)
-
-    if calc_energy:
-        energy_calc(bodies, step_ke, step_pe)
-
+def dmh_acceleration(bodies, step_pe, total_pe):
     for body in bodies:
-        body.saved_xyz[0].append(body.xyz[0])
-        body.saved_xyz[1].append(body.xyz[1])  # Appends initial positions of each body to a
-        body.saved_xyz[2].append(body.xyz[2])  # list of saved positions for that body.
+        if body is objects[0]:
+            continue
+        else:
+            rx = body.xyz[0] - objects[0].xyz[0]
+            ry = body.xyz[1] - objects[0].xyz[1]  # Distance between two bodies in all directions.
+            rz = body.xyz[2] - objects[0].xyz[2]
+            r = math.sqrt(rx ** 2 + ry ** 2 + rz ** 2)
+            a = ((G * M_vir1) / (math.log(1 + c1) - (c1 / (1 + c1)))) * \
+                (((r / (r + R_s1)) - (math.log(1 + r / R_s1))) / (r ** 2))
+            theta = math.atan2(ry, rx)  # Azimuthal angle.
+            phi = math.acos(rz / r)  # Polar angle.
+            ax = math.cos(theta) * math.sin(phi) * a
+            ay = math.sin(theta) * math.sin(phi) * a  # Force calculation in each direction.
+            az = math.cos(phi) * a
 
-    accel = {}
+            body.axyz[0] += ax
+            body.axyz[1] += ay  # Add together forces of al other bodies acting on that body.
+            body.axyz[2] += az
+            if calc_energy:
+                halo1pe = -(G * M_vir1 / r) * (1 / (math.log(1 + c1) - (c1 / (1 + c1)))) * math.log(1 + (r / R_s1))
+                total_pe += halo1pe * body.m / 2
+
+    if secondary_gal:
+        for body in bodies:
+            if body is objects[1]:
+                continue
+            else:
+                rx = body.xyz[0] - objects[1].xyz[0]
+                ry = body.xyz[1] - objects[1].xyz[1]  # Distance between two bodies in all directions.
+                rz = body.xyz[2] - objects[1].xyz[2]
+                r = math.sqrt(rx ** 2 + ry ** 2 + rz ** 2)
+                a = ((G * M_vir2) / (math.log(1 + c2) - (c2 / (1 + c2)))) * \
+                    (((r / (r + R_s2)) - (math.log(1 + r / R_s2))) / (r ** 2))
+                theta = math.atan2(ry, rx)  # Azimuthal angle.
+                phi = math.acos(rz / r)  # Polar angle.
+                ax = math.cos(theta) * math.sin(phi) * a
+                ay = math.sin(theta) * math.sin(phi) * a  # Force calculation in each direction.
+                az = math.cos(phi) * a
+
+                body.axyz[0] += ax
+                body.axyz[1] += ay  # Add together forces of al other bodies acting on that body.
+                body.axyz[2] += az
+                if calc_energy:
+                    halo2pe = -(G * M_vir2 / r) * (1 / (math.log(1 + c2) - (c2 / (1 + c2)))) * math.log(1 + (r / R_s2))
+                    total_pe += halo2pe * body.m / 2
+    step_pe.append(total_pe)
+
+
+def find_acceleration(bodies, step_pe, total_pe):
     for body in bodies:
-        total_ax = total_ay = total_az = 0.0  # Sets force for all bodies to 0.
+        for i in range(len(body.axyz)):
+            body.axyz[i] = 0
         for other in bodies:
             if body is other:  # Checking that not calculating force of a body on itself.
                 continue
             if other.name != "Test":  # Does not calculate force due to ring/test particles.
                 ax, ay, az = body.accel_calc(other)
-                total_ax += ax
-                total_ay += ay  # Add together forces of al other bodies acting on that body.
-                total_az += az
-        accel[body] = (total_ax, total_ay, total_az)
+                body.axyz[0] += ax
+                body.axyz[1] += ay  # Add together forces of al other bodies acting on that body.
+                body.axyz[2] += az
+                if calc_energy:
+                    r = math.sqrt((body.xyz[0]-other.xyz[0]) ** 2 + (body.xyz[1]-other.xyz[1]) ** 2 +
+                                  (body.xyz[2]-other.xyz[2]) ** 2)
+                    total_pe += - (G * body.m * other.m) / (2*r)
 
-    for body in bodies:  # Kick start position and velocities for all bodies.
-        body.axyz = accel[body]
+    dmh_acceleration(bodies, step_pe, total_pe)
+
+
+def leapfrog_initial(bodies, step, step_ke, step_pe):  # Produces kick start for the leapfrog algorithm.
+    print("Calculating...")
+    position_print(bodies, step)
+
+    total_ke = 0
+    total_pe = 0
+
+    for body in bodies:
+        body.saved_xyz[0].append(body.xyz[0])
+        body.saved_xyz[1].append(body.xyz[1])  # Appends initial positions of each body to a
+        body.saved_xyz[2].append(body.xyz[2])  # list of saved positions for that body.
+        if calc_energy:
+            v = (body.vxyz[0] ** 2) + (body.vxyz[1] ** 2) + (body.vxyz[2] ** 2)
+            total_ke += 0.5 * body.m * v
+    step_ke.append(total_ke)
+
+    find_acceleration(bodies, step_pe, total_pe)
 
 
 def leapfrog(bodies):  # Updates the position and velocity of each particle using a leapfrog algorithm.
@@ -177,6 +244,8 @@ def leapfrog(bodies):  # Updates the position and velocity of each particle usin
                 energy_print(step_ke, step_pe)
             return  # Stop simulation when all steps done.
         else:
+            total_ke = 0
+            total_pe = 0
 
             for body in bodies:
                 for i in range(len(body.axyz)):
@@ -184,51 +253,18 @@ def leapfrog(bodies):  # Updates the position and velocity of each particle usin
                     body.xyz[i] += body.vxyz[i] * time_step  # Uses new velocity to calculate new position.
                     body.saved_xyz[i].append(body.xyz[i])  # Saving new position to list of previous positions of body.
 
-            accel = {}
-            for body in bodies:
-                total_ax = total_ay = total_az = 0.0  # Sets force for all bodies to 0.
-                for other in bodies:
-                    if body is other:  # Checking that not calculating force of a body on itself.
-                        continue
-                    if other.name != "Test":  # Does not calculate force due to ring/test particles.
-                        ax, ay, az = body.accel_calc(other)
-                        total_ax += ax
-                        total_ay += ay  # Add together forces of a other bodies acting on that body.
-                        total_az += az
-                accel[body] = (total_ax, total_ay, total_az)
+            find_acceleration(bodies, step_pe, total_pe)
 
             for body in bodies:
-                body.axyz = accel[body]
                 for i in range(len(body.axyz)):
                     body.vxyz[i] += body.axyz[i] * (time_step / 2)
-
-            if calc_energy:
-                energy_calc(bodies, step_ke, step_pe)
+                if calc_energy:
+                    v = (body.vxyz[0] ** 2) + (body.vxyz[1] ** 2) + (body.vxyz[2] ** 2)
+                    total_ke += 0.5 * body.m * v
+            step_ke.append(total_ke)
 
             if step % int(interval) == 0:
                 position_print(bodies, step)  # Print information on particles to a file at a particular time.
-
-
-def energy_calc(bodies, step_ke, step_pe):
-
-    total_ke = 0
-    total_pe = 0
-
-    for body in bodies:
-        v = ((body.vxyz[0] ** 2) + (body.vxyz[1] ** 2) + (body.vxyz[2] ** 2)) ** 0.5
-        total_ke += 0.5 * body.m * v ** 2
-
-    for body in bodies:
-        for other in bodies:
-            if body is other:
-                continue
-            else:
-                r = (((body.xyz[0] - other.xyz[0]) ** 2) + ((body.xyz[1] - other.xyz[1]) ** 2) +
-                     ((body.xyz[2] - other.xyz[2]) ** 2)) ** 0.5
-                total_pe -= (G * body.m * other.m) / (2 * r)
-
-    step_ke.append(total_ke)
-    step_pe.append(total_pe)
 
 
 def energy_print(step_ke, step_pe):
@@ -258,19 +294,24 @@ def info():
 
     print("\nThe runtime for this simulation was %.2f minutes.\n\n" % total_time)  # Prints runtime.
 
-    print("There are", tot_rp, "particles in one galaxy's disk.\n")  # Prints total number of particles in a
-                                                                         # galaxy's disk.
+    print("There are", tot_rp1, "particles in the primary galaxy's disk.\n")  # Prints total number of particles in a
+                                                                              # galaxy's disk.
+    print("There are", tot_rp2, "particles in the secondary galaxy's disk.\n")  # Prints total number of particles in a
+                                                                                # galaxy's disk.
     print("There are a total of", tot_part, "particles in the simulation.\n")  # Prints total number of particles
                                                                                # in a simulation.
-    print("Pericentre of interaction =", round(min_pericentre_pc, 2), "kpc, occurring at t =", round(t, 2), "Gyrs.\n")
-                                                            # Prints value of pericentre and time at which it occurs.
+    if secondary_gal:
+        print("Pericentre of interaction =", round(min_pericentre_pc, 2),
+              "kpc, occurring at t =", round(t, 2), "Gyrs.\n")
+                # Prints value of pericentre and time at which it occurs.
     print("The time between each of the", (frames + 1), "images is", image_time_step, "Gyrs.\n\n")
                                                             # Prints number of images and time between them.
     if rewind:
         file = open("Backwards/RewindPericentreInfo.txt", "w+")  # Writes information to file for backwards interaction.
     else:
         file = open("Forwards/PericentreInfo.txt", "w+")  # Writes information to file for forwards interaction.
-    file.write("{0} {1} {2} {3}".format(tot_rp, tot_part, min_pericentre_pc, t))  # Prints information values to a file.
+    file.write("{0} {1} {2} {3} {4}".format(tot_rp1, tot_rp2, tot_part, min_pericentre_pc, t))
+                                                                    # Prints information values to a file.
     file.close()
 
 
@@ -300,14 +341,15 @@ def path_print():
                                            objects[0].saved_xyz[2][i]))
     file1.close()
 
-    if rewind:
-        file2 = open("Backwards/RWSecGalPath.txt", "w+")
-    else:
-        file2 = open("Forwards/SecGalPath.txt", "w+")  # Prints coordinates of secondary galaxy at every time step to a file.
-    for i in range(len(objects[1].saved_xyz[0])):
-        file2.write("{0} {1} {2}\n".format(objects[1].saved_xyz[0][i], objects[1].saved_xyz[1][i],
-                                           objects[1].saved_xyz[2][i]))
-    file2.close()
+    if secondary_gal:
+        if rewind:
+            file2 = open("Backwards/RWSecGalPath.txt", "w+")
+        else:
+            file2 = open("Forwards/SecGalPath.txt", "w+")  # Prints coordinates of secondary galaxy at every time step to a file.
+        for i in range(len(objects[1].saved_xyz[0])):
+            file2.write("{0} {1} {2}\n".format(objects[1].saved_xyz[0][i], objects[1].saved_xyz[1][i],
+                                               objects[1].saved_xyz[2][i]))
+        file2.close()
 
 
 def position_print(bodies, step):  # Printing information of each particle at the time an image is seen.
@@ -325,6 +367,10 @@ def position_print(bodies, step):  # Printing information of each particle at th
 def main():  # Calling all functions in order.
 
     make_directories()
+
+    if not secondary_gal and secondary_disk:
+        print("\nError. There has to a secondary galaxy in order to have a secondary galaxy disk.")
+        return
 
     if initial_txt:
         read_initial_conditions()
