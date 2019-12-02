@@ -6,8 +6,6 @@ import os
 from mpl_toolkits.mplot3d import Axes3D
 from IntData import *
 
-plot_fw_bw = False  # Option to view forwards and backwards energy of an interaction, on one graph.
-
 ke = []  # List of values for kinetic energy.
 pe = []  # List of values for potential energy.
 RW_ke = []  # List of values for kinetic energy, exclusively for backwards interaction.
@@ -17,10 +15,16 @@ RW_total_e = []  # List of values for total energy, exclusively for backwards in
 plot_step = []  # List of each time step, numbered.
 
 
+def option_checks():
+    if energy_fwds_bwds and rewind:  # Other wise will show backwards data for both lines on graph.
+        print("\nPlease set rewind to 'True' in IntData.py, in order to not get the same data plotted twice.")
+        exit(1)
+
+
 def read_files():  # Reads the energy files made by NBody Code.
     ke_read()
     pe_read()
-    if plot_fw_bw:
+    if energy_fwds_bwds:
         RW_ke_read()
         RW_pe_read()
 
@@ -66,7 +70,7 @@ def RW_pe_read():  # Reads the potential energy files made by NBody Code.
 def find_variables():  # Finds variables used for plotting.
     find_steps()
     find_total_e()
-    if plot_fw_bw:
+    if energy_fwds_bwds:
         RW_find_total_e()
 
 
@@ -97,20 +101,8 @@ def ke_manip():  # Manipulates the kinetic energy to find the different values o
     print("\nThe average KE is", avg_ke)
     print("\nThe initial KE is", ke[0])
     print("\nThe final KE is", ke[-1])
-    # for i in range(len(ke)):
-    #     ke[i] = ke[i] / avg_ke
 
     print("\nThe error in the final KE is", (ke[-1] - ke[0])/ke[0], "%")
-
-    # Average Error Calculations below:  Sum(E_i - E_0) / E_0 * N
-    #
-    # sum_i0 = 0
-    # for j in range(len(ke)):
-    #     sum_i0 += ke[j] - ke[0]
-    #
-    # err = sum_i0 / (ke[0] * len(ke))
-    #
-    # print("\nThe average error for the KE is", err, "% of the initial KE.")
 
 
 def pe_manip():  # Manipulates the potential energy to find the different values of errors and print them.
@@ -118,20 +110,8 @@ def pe_manip():  # Manipulates the potential energy to find the different values
     print("\n\nThe average PE is", avg_pe)
     print("\nThe initial PE is", pe[0])
     print("\nThe final PE is", pe[-1])
-    # for i in range(len(pe)):
-    #     pe[i] = pe[i] / avg_pe
 
     print("\nThe error in the final PE is", (pe[-1] - pe[0])/pe[0], "%")
-
-    # Average Error Calculations below:  Sum(E_i - E_0) / E_0 * N
-    #
-    # sum_i0 = 0
-    # for j in range(len(pe)):
-    #     sum_i0 += pe[j] - pe[0]
-    #
-    # err = sum_i0 / (pe[0] * len(pe))
-    #
-    # print("\nThe average error for the PE is", err, "% of the initial PE.")
 
 
 def total_e_manip():  # Manipulates the total energy to find the different values of errors and print them.
@@ -139,20 +119,8 @@ def total_e_manip():  # Manipulates the total energy to find the different value
     print("\n\nThe average total energy is", avg_e)
     print("\nThe initial total energy is", total_e[0])
     print("\nThe final total energy is", total_e[-1])
-    # for j in range(len(total_e)):
-    #     total_e[j] = total_e[j] / avg_e
 
     print("\nThe error in the final total energy is", (total_e[-1] - total_e[0])/total_e[0], "%")
-
-    # Average Error Calculations below:  Sum(E_i - E_0) / E_0 * N
-    #
-    # sum_i0 = []
-    # for j in range(len(total_e)):
-    #     sum_i0.append(abs(total_e[j]-total_e[0]))
-    #
-    # err = sum(sum_i0) / (total_e[0] * len(total_e))
-    #
-    # print("\nThe average error for the total energy is", err, "% of the initial total energy.\n")
 
 
 def cumulative_error():  # Calculates the cumulative total energy error and prints it.
@@ -185,15 +153,13 @@ def plot_fwbw():  # Plots how total energy changes with each time step, on an in
 
 def main():
 
-    if plot_fw_bw and rewind:  # Other wise will show backwards data for both lines on graph.
-        print("\nPlease set rewind to 'True' in IntData.py, in order to not get the same data plotted twice.")
-        exit(1)
+    option_checks()
 
     read_files()
 
     find_variables()
 
-    if plot_fw_bw:
+    if energy_fwds_bwds:
         print("\nNo information is available when plotting the energy forwards and backwards on the same graph.")
         plot_fwbw()
     else:

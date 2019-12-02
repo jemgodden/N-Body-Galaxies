@@ -1,11 +1,23 @@
 # Simulation options:
-rewind = False  # Option to run the simulation backwards.
 initial_txt = False  # Option to read the initial conditions from a text file.
-secondary_gal = True  # Option to run the primary galaxy in isolation, with no secondary galaxy perturbing it.
-secondary_disk = True  # Option to include a disk of particles as part of the Secondary Galaxy.
-calc_energy = True  # Option to calculate energy during the simulation.
-centre_mid = True  # Option to view the centre, between the two galaxies, of the interaction.
-centre_pri = False  # Option to view the Primary Galaxy, during the interaction.
+galaxy_files = False  # Option to read in all galaxy particles from specific text files for each galaxy.
+primary_isolation = False  # Option to run a simulation of the primary galaxy, in isolation, at (0, 0, 0).
+secondary_isolation = False  # Option to run a simulation of the secondary galaxy, in isolation, at (0, 0, 0).
+rewind = False  # Option to run the simulation backwards.
+calc_energy = False  # Option to calculate energy during the simulation.
+
+# Galaxy options:
+primary_gal = True  # Option to include the primary galaxy in the interaction.
+primary_disk = True  # Option to include a disk of particles as part of the Primary Galaxy.
+primary_dmh = False  # Option to include a dark matter halo for the primary galaxy.
+secondary_gal = False  # Option to include the secondary galaxy in the interaction.
+secondary_disk = False  # Option to include a disk of particles as part of the Secondary Galaxy.
+secondary_dmh = False  # Option to include a dark matter halo for the secondary galaxy.
+
+# Simulation viewing options:
+centre_mid = False  # Option to view the centre, between the two galaxies, of the interaction.
+centre_pri = True  # Option to view the Primary Galaxy, during the interaction.
+energy_fwds_bwds = False  # Option to view forwards and backwards energy of an interaction, on one graph.
 
 # Constants:
 G = 6.67e-11  # Gravitational constant.
@@ -31,14 +43,15 @@ image_time_step = time_run / (frames * Gyr)  # Time between images being shown.
 # Primary galaxy starting conditions:
 mg1 = 1e11 * sm  # Mass of primary galaxy.
 xg1 = 0  # x position of primary galaxy.
-yg1 = 0  # y position of primary galaxy.
+yg1 = 0 * kpc  # y position of primary galaxy.
 zg1 = 0  # y position of primary galaxy.
 vxg1 = 0  # x velocity of primary galaxy.
-vyg1 = 110 * km_s  # y velocity of primary galaxy.
+vyg1 = 0 * km_s  # 110 * kms # y velocity of primary galaxy.
 vzg1 = 0  # z velocity of primary galaxy.
 path1 = "b-"  # Colour of path for primary galaxy being plotted.
 
 # Primary galaxy disk conditions:
+norm_spin1 = [0.5, 0.25, 0.829]  # Normalised spin of the primary galaxy for x, y and z directions.
 dr1 = 20 * kpc  # Radius of disk if primary galaxy.
 no_rings1 = 6  # Number of rings in primary galaxy.
 ring_rad1 = dr1 / no_rings1  # Radius of innermost ring from primary galaxy centre.
@@ -53,15 +66,16 @@ R_vir1 = c1 * R_s1  # Virial radius of primary galaxy's dark matter halo.
 
 # Secondary galaxy starting conditions:
 mg2 = 1e11 * sm  # Mass of secondary galaxy.
-xg2 = 120 * kpc  # x position of secondary galaxy.
-yg2 = 500 * kpc  # y position of secondary galaxy.
+xg2 = 0  # 120 * kpc  # x position of secondary galaxy.
+yg2 = 0 * kpc  # 500 * kpc  # y position of secondary galaxy.
 zg2 = 0  # z position of secondary galaxy.
 vxg2 = 0  # x velocity of secondary galaxy.
-vyg2 = -110 * km_s  # y velocity of secondary galaxy.
+vyg2 = 0 * km_s  # -75 * kms  # -110 * km_s  # y velocity of secondary galaxy.
 vzg2 = 0  # z velocity of secondary galaxy.
 path2 = "r-"  # Colour of path for secondary galaxy being plotted.
 
 # Secondary galaxy disk conditions:
+norm_spin2 = [0, 0, 1]  # Normalised spin of the primary galaxy for x, y and z directions.
 dr2 = 20 * kpc  # Radius of disk if secondary galaxy.
 no_rings2 = 6  # Number of rings in secondary galaxy.
 ring_rad2 = dr2 / no_rings2  # Radius of innermost ring from secondary galaxy centre.
@@ -84,6 +98,7 @@ if secondary_disk:
 '''
 To-Do list:
 -Put all comments in blocks above blocks of code, unless relating to a particular line.
--Put everything into classes. Move classes out of main file, into their own one. Research classes.
+-Get rid of any repeated code, especially with x, y and z of a coordinate being used (i.e in being printed.)
 -Split up functions, so each only does one thing and they all flow together.
+-Put everything into classes. Move classes out of main file, into their own one. Research classes.
 '''

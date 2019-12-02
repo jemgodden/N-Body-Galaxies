@@ -59,6 +59,34 @@ class Body:
         return ax, ay, az
 
 
+def option_checks():
+    if not secondary_gal and secondary_disk:
+        print("\nError. There has to a secondary galaxy in order to have a secondary galaxy disk.")
+        exit(1)
+    if not secondary_gal and secondary_dmh:
+        print("\nError. There has to a secondary galaxy in order to have a secondary galaxy dark matter halo.")
+        exit(1)
+    if primary_isolation and secondary_isolation:
+        print("\nError. Only one galaxy can be run in isolation at a time.")
+        exit(1)
+    if (initial_txt and rewind and galaxy_files) or (initial_txt and rewind) or (initial_txt and galaxy_files) \
+            or (rewind and galaxy_files):
+        print("\nError. Please choose only one way of reading in files.")
+        exit(1)
+    if primary_isolation and secondary_gal:
+        print("\nError. Cannot run primary galaxy in isolation if there is a secondary galaxy.")
+        exit(1)
+    if secondary_isolation and primary_gal:
+        print("\nError. Cannot run secondary galaxy in isolation if there is a primary galaxy.")
+        exit(1)
+    if primary_isolation and (xg1 != 0 or yg1 != 0 or zg1 != 0 or vxg1 != 0 or vyg1 != 0 or vzg1 != 0):
+        print("\nError. Please initialise primary galaxy positions and velocities to 0.")
+        exit(1)
+    if secondary_isolation and (xg2 != 0 or yg2 != 0 or zg2 != 0 or vxg2 != 0 or vyg2 != 0 or vzg2 != 0):
+        print("\nError. Please initialise primary galaxy positions and velocities to 0.")
+        exit(1)
+
+
 def make_directories():  # Checks directories exist and makes them if not.
     if not os.path.exists('./Forwards'):
         os.makedirs('./Forwards')
@@ -67,45 +95,81 @@ def make_directories():  # Checks directories exist and makes them if not.
 
 
 def create_galaxies():  # Creates two interacting galaxies using Body class.
-    objects.append(Body("Primary", mg1, [xg1, yg1, zg1], [vxg1, vyg1, vzg1], 'bo'))
-    # Creates primary galaxy and adds it to list of bodies.
+    if primary_gal:
+        objects.append(Body("Primary", mg1, [xg1, yg1, zg1], [vxg1, vyg1, vzg1], 'bo'))
+        # Creates primary galaxy and adds it to list of bodies.
     if secondary_gal:
         objects.append(Body("Secondary", mg2, [xg2, yg2, zg2], [vxg2, vyg2, vzg2], 'ro'))
         # Creates secondary galaxy and adds it to list of bodies.
 
 
 def create_rings():  # Creates set of rings for each galaxy.
-    for k in range(0, no_rings1):  # Creating rings for primary galaxy.
-        r = (k + 1) * ring_rad1  # Radius of each ring.
-        n = (k + 1) * no_rp1  # Number of particles in each ring.
-        v = math.sqrt((G * mg1 / r) - ((G * M_vir1) / (math.log(1 + c1) - (c1 / (1 + c1)))) *
-                      (((r / (r + R_s1)) - (math.log(1 + r / R_s1))) / r))  # Velocity of particles in each ring.
-        for i in range(0, n):
-            theta = 2 * math.pi * i / n  # Assigning particles to a ring formation.
-            x = r * math.cos(theta)
-            y = r * math.sin(theta)
-            z = 0
-            vx = v * math.sin(theta)
-            vy = -v * math.cos(theta)  # x and y velocities of each particle in ring.
-            vz = 0
-            objects.append(Body("Test", 1, [xg1 + x, yg1 + y, zg1 + z], [vxg1 + vx, vyg1 + vy, vzg1 + vz], 'c.'))
+    if primary_disk:
+        for k in range(0, no_rings1):  # Creating rings for primary galaxy.
+            r = (k + 1) * ring_rad1  # Radius of each ring.
+            n = (k + 1) * no_rp1  # Number of particles in each ring.
+            if primary_dmh:
+                v = math.sqrt((G * mg1 / r) - ((G * M_vir1) / (math.log(1 + c1) - (c1 / (1 + c1)))) *
+                              (((r / (r + R_s1)) - (math.log(1 + r / R_s1))) / r))  # Velocity of particles in ring.
+            else:
+                v = math.sqrt(G * mg1 / r)
+
+            for i in range(0, n):
+                theta = 2 * math.pi * i / n  # Assigning particles to a ring formation.
+                xtemp = r * math.cos(theta)
+                ytemp = r * math.sin(theta)
+                ztemp = 0
+
+                alpha = math.acos(norm_spin1[2])
+                beta = math.asin(norm_spin1[0]/math.sin(alpha))
+
+                x = xtemp * math.cos(beta) + (ytemp * math.cos(alpha) + ztemp * math.sin(alpha)) * math.sin(beta)
+                y = - xtemp * math.sin(beta) + (ytemp * math.cos(alpha) + ztemp * math.sin(alpha)) * math.cos(beta)
+                z = - ytemp * math.sin(alpha) + ztemp * math.cos(alpha)
+
+                vxtemp = v * math.sin(theta)
+                vytemp = -v * math.cos(theta)  # x and y velocities of each particle in ring.
+                vztemp = 0
+
+                vx = vxtemp * math.cos(beta) + (vytemp * math.cos(alpha) + vztemp * math.sin(alpha)) * math.sin(beta)
+                vy = - vxtemp * math.sin(beta) + (vytemp * math.cos(alpha) + vztemp * math.sin(alpha)) * math.cos(beta)
+                vz = - vytemp * math.sin(alpha) + vztemp * math.cos(alpha)
+
+                objects.append(Body("pTest", 1, [xg1 + x, yg1 + y, zg1 + z], [vxg1 + vx, vyg1 + vy, vzg1 + vz], 'c.'))
                                                 # Adding ring particles to list of Bodies. Test particles, mass = 1kg.
 
     if secondary_disk:
         for k in range(0, no_rings2):  # Creating rings for secondary galaxy.
             r = (k + 1) * ring_rad2  # Radius of each ring.
             n = (k + 1) * no_rp2  # Number of particles in each ring.
-            v = math.sqrt((G * mg2 / r) - ((G * M_vir2) / (math.log(1 + c2) - (c2 / (1 + c2)))) *
-                          (((r / (r + R_s2)) - (math.log(1 + r / R_s2))) / r))  # Velocity of particles in each ring.
+            if secondary_dmh:
+                v = math.sqrt((G * mg2 / r) - ((G * M_vir2) / (math.log(1 + c2) - (c2 / (1 + c2)))) *
+                              (((r / (r + R_s2)) - (math.log(1 + r / R_s2))) / r))  # Velocity of particles in ring.
+            else:
+                v = math.sqrt(G * mg2 / r)
+
             for i in range(0, n):
-                angle = 2 * math.pi * i / n  # Assigning particles to a ring formation.
-                x = r * math.cos(angle)
-                y = r * math.sin(angle)  # x and y coordinates of each particle in ring.
-                z = 0
-                vx = v * math.sin(angle)
-                vy = -v * math.cos(angle)  # x and y velocities of each particle in ring.
-                vz = 0
-                objects.append(Body('Test', 1, [xg2 + x, yg2 + y, zg2 + z], [vxg2 + vx, vyg2 + vy, vzg2 + vz], 'm.'))
+                theta = 2 * math.pi * i / n  # Assigning particles to a ring formation.
+                xtemp = r * math.cos(theta)
+                ytemp = r * math.sin(theta)
+                ztemp = 0
+
+                alpha = math.acos(norm_spin2[2])
+                beta = math.asin(norm_spin2[0]/math.sin(alpha))
+
+                x = xtemp * math.cos(beta) + (ytemp * math.cos(alpha) + ztemp * math.sin(alpha)) * math.sin(beta)
+                y = - xtemp * math.sin(beta) + (ytemp * math.cos(alpha) + ztemp * math.sin(alpha)) * math.cos(beta)
+                z = - ytemp * math.sin(alpha) + ztemp * math.cos(alpha)
+
+                vxtemp = v * math.sin(theta)
+                vytemp = -v * math.cos(theta)  # x and y velocities of each particle in ring.
+                vztemp = 0
+
+                vx = vxtemp * math.cos(beta) + (vytemp * math.cos(alpha) + vztemp * math.sin(alpha)) * math.sin(beta)
+                vy = - vxtemp * math.sin(beta) + (vytemp * math.cos(alpha) + vztemp * math.sin(alpha)) * math.cos(beta)
+                vz = - vytemp * math.sin(alpha) + vztemp * math.cos(alpha)
+
+                objects.append(Body("sTest", 1, [xg2 + x, yg2 + y, zg2 + z], [vxg2 + vx, vyg2 + vy, vzg2 + vz], 'm.'))
                                                 # Adding ring particles to list of Bodies. Test particles, mass = 1kg.
 
 
@@ -132,31 +196,53 @@ def read_initial_conditions():  # Reads in initial conditions, of all particles,
     file.close()                                                                         # information read from file.
 
 
-def dmh_acceleration(bodies, step_pe, total_pe):
-    for body in bodies:
-        if body is objects[0]:
-            continue
-        else:
-            rx = body.xyz[0] - objects[0].xyz[0]
-            ry = body.xyz[1] - objects[0].xyz[1]  # Distance between two bodies in all directions.
-            rz = body.xyz[2] - objects[0].xyz[2]
-            r = math.sqrt(rx ** 2 + ry ** 2 + rz ** 2)
-            a = ((G * M_vir1) / (math.log(1 + c1) - (c1 / (1 + c1)))) * \
-                (((r / (r + R_s1)) - (math.log(1 + r / R_s1))) / (r ** 2))
-            theta = math.atan2(ry, rx)  # Azimuthal angle.
-            phi = math.acos(rz / r)  # Polar angle.
-            ax = math.cos(theta) * math.sin(phi) * a
-            ay = math.sin(theta) * math.sin(phi) * a  # Force calculation in each direction.
-            az = math.cos(phi) * a
+def read_galaxy(file_name):
+    file = open(file_name, "r")
+    for line in file:
+        data = line.strip().split()
+        if file_name == "Primary_Galaxy.txt":
+            objects.append(Body(data[0], float(data[1]),
+                                [xg1 + float(data[2]), yg1 + float(data[3]), zg1 + float(data[4])],
+                                [vxg1 + float(data[5]), vyg1 + float(data[6]), vzg1 + float(data[7])], data[8]))
+        if file_name == "Secondary_Galaxy.txt":
+            objects.append(Body(data[0], float(data[1]),
+                                [xg2 + float(data[2]), yg2 + float(data[3]), zg2 + float(data[4])],
+                                [vxg2 + float(data[5]), vyg2 + float(data[6]), vzg2 + float(data[7])], data[8]))
+    file.close()
 
-            body.axyz[0] += ax
-            body.axyz[1] += ay  # Add together forces of al other bodies acting on that body.
-            body.axyz[2] += az
-            if calc_energy:
-                halo1pe = -(G * M_vir1 / r) * (1 / (math.log(1 + c1) - (c1 / (1 + c1)))) * math.log(1 + (r / R_s1))
-                total_pe += halo1pe * body.m / 2
 
+def read_galaxy_files():
+    read_galaxy("Primary_Galaxy.txt")
     if secondary_gal:
+        read_galaxy("Secondary_Galaxy.txt")
+
+
+def dmh_acceleration(bodies, step_pe, total_pe):
+    if primary_dmh:
+        for body in bodies:
+            if body is objects[0]:
+                continue
+            else:
+                rx = body.xyz[0] - objects[0].xyz[0]
+                ry = body.xyz[1] - objects[0].xyz[1]  # Distance between two bodies in all directions.
+                rz = body.xyz[2] - objects[0].xyz[2]
+                r = math.sqrt(rx ** 2 + ry ** 2 + rz ** 2)
+                a = ((G * M_vir1) / (math.log(1 + c1) - (c1 / (1 + c1)))) * \
+                    (((r / (r + R_s1)) - (math.log(1 + r / R_s1))) / (r ** 2))
+                theta = math.atan2(ry, rx)  # Azimuthal angle.
+                phi = math.acos(rz / r)  # Polar angle.
+                ax = math.cos(theta) * math.sin(phi) * a
+                ay = math.sin(theta) * math.sin(phi) * a  # Force calculation in each direction.
+                az = math.cos(phi) * a
+
+                body.axyz[0] += ax
+                body.axyz[1] += ay  # Add together forces of al other bodies acting on that body.
+                body.axyz[2] += az
+                if calc_energy:
+                    halo1pe = -(G * M_vir1 / r) * (1 / (math.log(1 + c1) - (c1 / (1 + c1)))) * math.log(1 + (r / R_s1))
+                    total_pe += halo1pe * body.m / 2
+
+    if secondary_dmh:
         for body in bodies:
             if body is objects[1]:
                 continue
@@ -179,6 +265,7 @@ def dmh_acceleration(bodies, step_pe, total_pe):
                 if calc_energy:
                     halo2pe = -(G * M_vir2 / r) * (1 / (math.log(1 + c2) - (c2 / (1 + c2)))) * math.log(1 + (r / R_s2))
                     total_pe += halo2pe * body.m / 2
+
     step_pe.append(total_pe)
 
 
@@ -336,9 +423,16 @@ def path_print():
         file1 = open("Backwards/RWPriGalPath.txt", "w+")
     else:
         file1 = open("Forwards/PriGalPath.txt", "w+")  # Prints coordinates of primary galaxy at every time step to a file.
-    for i in range(len(objects[0].saved_xyz[0])):
-        file1.write("{0} {1} {2}\n".format(objects[0].saved_xyz[0][i], objects[0].saved_xyz[1][i],
-                                           objects[0].saved_xyz[2][i]))
+
+    pri = 0
+    for x in objects:
+        if x.name == "Primary":
+            pri = objects.index(x)
+            break
+
+    for i in range(len(objects[pri].saved_xyz[0])):
+        file1.write("{0} {1} {2}\n".format(objects[pri].saved_xyz[0][i], objects[pri].saved_xyz[1][i],
+                                           objects[pri].saved_xyz[2][i]))
     file1.close()
 
     if secondary_gal:
@@ -346,9 +440,16 @@ def path_print():
             file2 = open("Backwards/RWSecGalPath.txt", "w+")
         else:
             file2 = open("Forwards/SecGalPath.txt", "w+")  # Prints coordinates of secondary galaxy at every time step to a file.
-        for i in range(len(objects[1].saved_xyz[0])):
-            file2.write("{0} {1} {2}\n".format(objects[1].saved_xyz[0][i], objects[1].saved_xyz[1][i],
-                                               objects[1].saved_xyz[2][i]))
+
+        sec = 0
+        for y in objects:
+            if y.name == "Secondary":
+                sec = objects.index(y)
+                break
+
+        for i in range(len(objects[sec].saved_xyz[0])):
+            file2.write("{0} {1} {2}\n".format(objects[sec].saved_xyz[0][i], objects[sec].saved_xyz[1][i],
+                                               objects[sec].saved_xyz[2][i]))
         file2.close()
 
 
@@ -364,27 +465,52 @@ def position_print(bodies, step):  # Printing information of each particle at th
     file.close()                    # Writes all information on a particle to one line.
 
 
+def isolation_print(bodies, file_name):
+    file = open(file_name, "w+")
+    for body in bodies:
+        file.write("{0} {1} {2} {3} {4} {5} {6} {7} {8}\n".format(body.name, body.m, body.xyz[0], body.xyz[1],
+                                                                  body.xyz[2], body.vxyz[0], body.vxyz[1], body.vxyz[2],
+                                                                  body.colour))
+    file.close()
+
+
+def isolation_output(bodies):
+    if primary_isolation:
+        create_galaxies()
+        create_rings()
+        leapfrog(objects)
+        info()
+        isolation_print(bodies, "Primary_Galaxy.txt")
+
+    if secondary_isolation:
+        create_galaxies()
+        create_rings()
+        leapfrog(objects)
+        info()
+        isolation_print(bodies, "Secondary_Galaxy.txt")
+
+
 def main():  # Calling all functions in order.
 
+    option_checks()
     make_directories()
 
-    if not secondary_gal and secondary_disk:
-        print("\nError. There has to a secondary galaxy in order to have a secondary galaxy disk.")
+    if primary_isolation or secondary_isolation:
+        isolation_output(objects)
         return
 
     if initial_txt:
         read_initial_conditions()
+    if galaxy_files:
+        read_galaxy_files()
     if rewind:
         rewind_initial()
     else:
         create_galaxies()
-
         create_rings()
 
     leapfrog(objects)
-
     info()
-
     path_print()
 
     print("The data has been printed to text files. Please use the Plotter function to see the images.\n")

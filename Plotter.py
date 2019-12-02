@@ -16,6 +16,16 @@ PriGalCen = [[], [], []]  # Editable list of x, y and z position coordinates for
 SecGalCen = [[], [], []]  # Editable list of x, y and z position coordinates for secondary galaxy.
 
 
+def option_checks():
+    if centre_mid and centre_pri:
+        print("\nError. Please select only one centring.")
+        exit(1)
+
+    if centre_mid and not secondary_gal:
+        print("\nError. Cannot centre on the middle of the interactions if there is only one galaxy.")
+        exit(1)
+
+
 def path_read():  # Reads information about the path of the galaxies in the interaction.
     print("\nReading files...\n\n")
     if rewind:
@@ -163,7 +173,7 @@ def plot():  # Plot images of interaction.
         ax.set_zlabel('Z', fontsize=10)
         ax.set_xlim(-2e21, 2e21)
         ax.set_ylim(-2e21, 2e21)  # Set axis limits.
-        ax.set_zlim(-2e11, 2e11)
+        ax.set_zlim(-2e21, 2e21)
 
         if centre_pri:
             ax.plot3D(PriGalCen[0], PriGalCen[1], PriGalCen[2], path1)  # Prints edited paths for when centring images on the primary galaxy.
@@ -192,13 +202,7 @@ def plot():  # Plot images of interaction.
 
 def main():  # Calling all functions in order.
 
-    if centre_mid and centre_pri:  # Check to make sure both centring's aren't being used at the same time.
-        print("\nError. Please select only one centring.")
-        return
-
-    if centre_mid and not secondary_gal:
-        print("\nError. Cannot centre on the middle of the interactions if there is only one galaxy.")
-        return
+    option_checks()
 
     path_read()
 
