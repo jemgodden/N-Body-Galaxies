@@ -112,9 +112,9 @@ def centring_pri():  # A function to centre the images of the interaction on the
 
 def point_read(title):  # Reads information about all particles in the simulation.
     if rewind:
-        file = open("Backwards/rimage_%.2f.txt" % title)
+        file = open("Backwards/rimage_%.3f.txt" % title)
     else:
-        file = open("Forwards/image_%.2f.txt" % title)  # Reads file containing positions of each particle at a particular time.
+        file = open("Forwards/image_%.3f.txt" % title)  # Reads file containing positions of each particle at a particular time.
 
     for line in file:  # Reads the file line by line.
         data = line.strip().split()
@@ -149,8 +149,9 @@ def info():  # Prints information on interaction using files made during simulat
 
     print("There are", total_rp1, "particles in the primary galaxy's disk.\n")  # Prints total number of particles in a
                                                                                 # galaxy's disk.
-    print("There are", total_rp2, "particles in the primary galaxy's disk.\n")  # Prints total number of particles in a
-                                                                                # galaxy's disk.
+    if secondary_disk:
+        print("There are", total_rp2, "particles in the secondary galaxy's disk.\n")  # Prints total number of particles
+                                                                                    # in a galaxy's disk.
     print("There are a total of", total_part, "particles in the simulation.\n")  # Prints total number of particles
                                                                                     # in a simulation.
     if secondary_gal:
@@ -167,7 +168,7 @@ def plot():  # Plot images of interaction.
         point_read(title)
         fig = plt.figure()  # Creates figure.
         ax = fig.add_subplot(1, 1, 1, projection='3d')
-        ax.set_title('t = %.2f Gyrs' % title, fontsize=10)  # Title the figure with the time of interaction.
+        ax.set_title('t = %.3f Gyrs' % title, fontsize=10)  # Title the figure with the time of interaction.
         ax.set_xlabel('X', fontsize=10)
         ax.set_ylabel('Y', fontsize=10)  # Set axis labels.
         ax.set_zlabel('Z', fontsize=10)
@@ -175,14 +176,15 @@ def plot():  # Plot images of interaction.
         ax.set_ylim(-2e21, 2e21)  # Set axis limits.
         ax.set_zlim(-2e21, 2e21)
 
-        if centre_pri:
-            ax.plot3D(PriGalCen[0], PriGalCen[1], PriGalCen[2], path1)  # Prints edited paths for when centring images on the primary galaxy.
-            if secondary_gal:
-                ax.plot3D(SecGalCen[0], SecGalCen[1], SecGalCen[2], path2)
-        else:
-            ax.plot3D(PriGal[0], PriGal[1], PriGal[2], path1)  # Plotting path of primary galaxy.
-            if secondary_gal:
-                ax.plot3D(SecGal[0], SecGal[1], SecGal[2], path2)  # Plotting path of secondary galaxy.
+        if not primary_isolation and not secondary_isolation:
+            if centre_pri:
+                ax.plot3D(PriGalCen[0], PriGalCen[1], PriGalCen[2], path1)  # Prints edited paths for when centring images on the primary galaxy.
+                if secondary_gal:
+                    ax.plot3D(SecGalCen[0], SecGalCen[1], SecGalCen[2], path2)
+            else:
+                ax.plot3D(PriGal[0], PriGal[1], PriGal[2], path1)  # Plotting path of primary galaxy.
+                if secondary_gal:
+                    ax.plot3D(SecGal[0], SecGal[1], SecGal[2], path2)  # Plotting path of secondary galaxy.
 
         for j in range(len(x)):  # Plotting all objects on figure.
             ax.plot3D([x[j]], [y[j]], [z[j]], colour[j])
