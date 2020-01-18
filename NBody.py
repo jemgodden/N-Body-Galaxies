@@ -104,7 +104,7 @@ def create_rings():  # Creates set of rings for each galaxy.
     if primary_disk:
         for k in range(0, no_rings1):  # Creating rings for primary galaxy.
             r = (k + 1) * ring_rad1  # Radius of each ring.
-            n = 1  # (k + 1) * no_rp1  # Number of particles in each ring.
+            n = (k + 1) * no_rp1  # Number of particles in each ring.
             if primary_dmh:
                 v = math.sqrt((G * mg1 / r) - ((G * M_vir1) / (math.log(1 + c1) - (c1 / (1 + c1)))) *
                               (((r / (r + R_s1)) - (math.log(1 + (r / R_s1)))) / r))  # Velocity of particles in ring.
