@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from IntData import *
 
+names = []
 x = []
 y = []  # x, y and z coordinates of particle being plotted.
 z = []
@@ -14,6 +15,8 @@ SecGal = [[], [], []]  # List of x, y and z coordinates for position of secondar
 
 PriGal2 = [[], [], []]
 SecGal2 = [[], [], []]
+
+rotate = [0, 0, 0]
 
 
 def option_checks():
@@ -82,10 +85,22 @@ def path_copy():
         SecGal2[2].append(SecGal[2][i])
 
 
+def find_galaxy(galaxy_name):  # Finds position of a galaxy in the list of bodies.
+    position = 0
+    for i in range(len(names)):
+        if names[i] == galaxy_name:
+            position = i
+            break
+    return position
+
+
 def centring_mid():  # Centres the path in the images of the interaction to a central point of the two galaxies.
-    dx1 = (x[0] + x[1]) / 2
-    dy1 = (y[0] + y[1]) / 2  # Finding the mid-point of the two galaxies.
-    dz1 = (z[0] + z[1]) / 2
+    pri = find_galaxy(pri_galaxy_name)
+    sec = find_galaxy(sec_galaxy_name)
+
+    dx1 = (x[pri] + x[sec]) / 2
+    dy1 = (y[pri] + y[sec]) / 2  # Finding the mid-point of the two galaxies.
+    dz1 = (z[pri] + z[sec]) / 2
     for i in range(len(x)):
         x[i] += - dx1
         y[i] += - dy1  # Altering the position of each particle in the simulation.
@@ -108,9 +123,11 @@ def centring_mid():  # Centres the path in the images of the interaction to a ce
 
 
 def centring_pri():  # A function to centre the images of the interaction on the primary galaxy.
-    dx = x[0]
-    dy = y[0]
-    dz = z[0]
+    pri = find_galaxy(pri_galaxy_name)
+
+    dx = x[pri]
+    dy = y[pri]
+    dz = z[pri]
     for i in range(len(x)):
         x[i] += - dx
         y[i] += - dy  # Altering the position of each particle in the simulation.
@@ -126,9 +143,11 @@ def centring_pri():  # A function to centre the images of the interaction on the
 
 
 def centring_sec():  # A function to centre the images of the interaction on the secondary galaxy.
-    dx = x[1]
-    dy = y[1]
-    dz = z[1]
+    sec = find_galaxy(sec_galaxy_name)
+
+    dx = x[sec]
+    dy = y[sec]
+    dz = z[sec]
     for i in range(len(x)):
         x[i] += - dx
         y[i] += - dy  # Altering the position of each particle in the simulation.
@@ -144,9 +163,11 @@ def centring_sec():  # A function to centre the images of the interaction on the
 
 
 def centring_pri_origin():  # A function to keep the primary galaxy at the origin in the interaction images.
-    dx = x[0]
-    dy = y[0]
-    dz = z[0]
+    pri = find_galaxy(pri_galaxy_name)
+
+    dx = x[pri]
+    dy = y[pri]
+    dz = z[pri]
     for i in range(len(x)):
         x[i] += -dx
         y[i] += -dy
@@ -162,9 +183,11 @@ def centring_pri_origin():  # A function to keep the primary galaxy at the origi
 
 
 def centring_sec_origin():  # A function to keep the secondary galaxy at the origin in the interaction images.
-    dx = x[1]
-    dy = y[1]
-    dz = z[1]
+    sec = find_galaxy(sec_galaxy_name)
+
+    dx = x[sec]
+    dy = y[sec]
+    dz = z[sec]
     for i in range(len(x)):
         x[i] += -dx
         y[i] += -dy
@@ -181,16 +204,18 @@ def centring_sec_origin():  # A function to keep the secondary galaxy at the ori
 
 def point_read(title):  # Reads information about all particles in the simulation.
     if rewind:
-        file = open("Backwards/rimage_%.3f.txt" % title)
+        file = open("Backwards/rimage_%.5f.txt" % title)
     else:
-        file = open("Forwards/image_%.3f.txt" % title)  # Reads file containing positions of each particle at a particular time.
+        file = open("Forwards/image_%.5f.txt" % title)
 
     for line in file:  # Reads the file line by line.
         data = line.strip().split()
-        x.append(float(data[2]))
-        y.append(float(data[3]))  # Appends each x, y and z value to list to be plotted later.
-        z.append(float(data[4]))
-        colour.append(data[8])  # Appends colour of each particle to be plotted later.
+        if data[0] == pri_galaxy_name or sec_galaxy_name or pri_disk_name or sec_disk_name:
+            names.append(data[0])
+            x.append(float(data[2]))
+            y.append(float(data[3]))  # Appends each x, y and z value to list to be plotted later.
+            z.append(float(data[4]))
+            colour.append(data[8])  # Appends colour of each particle to be plotted later.
 
     centring_choice()
 
@@ -226,35 +251,33 @@ def change_units():
 
 
 def info():  # Prints information on interaction using files made during simulation.
-    total_rp1 = 0
-    total_rp2 = 0
+    total_dp1 = 0
+    total_dp2 = 0
     total_part = 0
     pericentre = 0
-    time = 0
+    time_of_pericentre = 0
     if rewind:
         file = open("Backwards/RewindPericentreInfo.txt")
     else:
-        file = open("Forwards/PericentreInfo.txt")  # Opens file containing information on the pericentre of the interaction.
+        file = open("Forwards/PericentreInfo.txt")
     for line in file:  # Goes through file line by line.
         data = line.strip().split()
-        total_rp1 = int(data[0])
-        total_rp2 = int(data[1])
+        total_dp1 = int(data[0])
+        total_dp2 = int(data[1])
         total_part = int(data[2])
         pericentre = float(data[3])  # Pericentre of the interaction.
-        time = float(data[4])  # Time at which pericentre occurs during interaction.
+        time_of_pericentre = float(data[4])  # Time at which pericentre occurs during interaction.
 
-    print("There are", total_rp1, "particles in the primary galaxy's disk.\n")  # Prints total number of particles in a
-                                                                                # galaxy's disk.
-    if secondary_disk:
-        print("There are", total_rp2, "particles in the secondary galaxy's disk.\n")  # Prints total number of particles
-                                                                                    # in a galaxy's disk.
-    print("There are a total of", total_part, "particles in the simulation.\n")  # Prints total number of particles
-                                                                                    # in a simulation.
-    if secondary_gal:
-        print("Pericentre of interaction =", round(pericentre, 2), "kpc, occurring at t =", round(time, 2), "Gyrs.\n")
-                                                            # Prints value of pericentre and time at which it occurs.
-    print("The time between each of the", (frames + 1), "images is", image_time_step, "Gyrs.\n\n")
-                                                            # Prints number of images and time between them.
+    if primary_disk and not secondary_isolation:
+        print("Primary galaxy disk particles: ", total_dp1, ".\n")
+    if secondary_disk and not primary_isolation:
+        print("Secondary galaxy disk particles: ", total_dp2, ".\n")
+    print("Total simulation particles: ", total_part, ".\n")
+    if primary_gal and secondary_gal:
+        print("Pericentre: ", round(pericentre, 2), "kpc.\n")
+        print("Time of pericentre: ", round(time_of_pericentre, 2), "Gyrs.\n")
+    print("Number of images produced: ", (frames + 1), ".\n")
+    print("Time between images: ", image_time_step, "Gyrs.\n\n")
 
 
 def plot():  # Plot images of interaction.
@@ -263,9 +286,9 @@ def plot():  # Plot images of interaction.
         title = i * image_time_step  # (frames - i)
         path_copy()
         point_read(title)
-        fig = plt.figure()  # Creates figure.
+        fig = plt.figure(figsize=(6, 6))  # Creates figure.
         ax = fig.add_subplot(1, 1, 1, projection='3d')
-        ax.set_title('t = %.3f Gyrs' % title, fontsize=10)  # Title the figure with the time of interaction.
+        ax.set_title('t = %.2f Gyrs' % title, fontsize=10)  # Title the figure with the time of interaction.
         ax.set_xlabel('X (kpc)', fontsize=10)
         ax.set_ylabel('Y (kpc)', fontsize=10)  # Set axis labels.
         ax.set_zlabel('Z (kpc)', fontsize=10)
@@ -278,19 +301,19 @@ def plot():  # Plot images of interaction.
                 ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], path1)  # Prints edited paths for when centring images on the primary galaxy.
                 if secondary_gal:
                     ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], path2)
-            if centre_sec:
+            elif centre_sec:
                 if primary_gal:
                     ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], path1)  # Prints edited paths for when centring images on the primary galaxy.
                 ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], path2)
-            if origin_pri:
+            elif origin_pri:
                 ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], path1)  # Plotting path of primary galaxy.
                 if secondary_gal:
                     ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], path2)  # Plotting path of secondary galaxy.
-            if origin_sec:
+            elif origin_sec:
                 if primary_gal:
                     ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], path1)  # Plotting path of primary galaxy.
                 ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], path2)  # Plotting path of secondary galaxy.
-            if not centre_pri and not centre_sec and not origin_pri and not origin_sec:
+            else:
                 if primary_gal:
                     ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], path1)  # Plotting path of primary galaxy.
                 if secondary_gal:

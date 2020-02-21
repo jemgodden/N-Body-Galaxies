@@ -22,32 +22,21 @@ def option_checks():
 
 
 def read_files():  # Reads the energy files made by NBody Code.
-    ke_read()
-    pe_read()
+    read_energy_file()
     if energy_fwds_bwds:
         RW_ke_read()
         RW_pe_read()
 
 
-def ke_read():  # Reads the kinetic energy files made by NBody Code.
+def read_energy_file():  # Reads the kinetic energy files made by NBody Code.
     if rewind:
-        file = open("Backwards/RewindKE.txt", "r")
+        file = open("Backwards/RewindEnergies.txt", "r")
     else:
-        file = open("Forwards/KE.txt", "r")
+        file = open("Forwards/Energies.txt", "r")
     for line in file:
         data = line.strip().split()
         ke.append(float(data[0]))
-    file.close()
-
-
-def pe_read():  # Reads the potential energy files made by NBody Code.
-    if rewind:
-        file = open("Backwards/RewindPE.txt", "r")
-    else:
-        file = open("Forwards/PE.txt", "r")
-    for line in file:
-        data = line.strip().split()
-        pe.append(float(data[0]))
+        ke.append(float(data[1]))
     file.close()
 
 
@@ -135,6 +124,7 @@ def cumulative_error():  # Calculates the cumulative total energy error and prin
 
 
 def plot():  # Plots how KE, PE and total energy change with each time step.
+    plt.figure(figsize=(6, 6))
     plt.plot(plot_step, ke, 'b--', label='KE')
     plt.plot(plot_step, pe, 'r-.', label='PE')
     plt.plot(plot_step, total_e, 'k-', label='Total E')
@@ -144,6 +134,7 @@ def plot():  # Plots how KE, PE and total energy change with each time step.
 
 
 def plot_fwbw():  # Plots how total energy changes with each time step, on an interaction run forwards and backwards.
+    plt.figure(figsize=(6, 6))
     plt.plot(plot_step, total_e, 'r-', label='Forwards TE')
     plt.plot(plot_step, RW_total_e, 'b--', label='Backwards TE')
     plt.legend(loc='upper right')
