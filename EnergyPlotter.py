@@ -65,7 +65,7 @@ def find_variables():  # Finds variables used for plotting.
 
 def find_steps():  # Creates a list of numbers that represent each time step.
     for i in range(len(ke)):
-        plot_step.append(i)
+        plot_step.append(i * time_step / Gyrs)
 
 
 def find_total_e():  # Calculates the total energy at each time step.
@@ -129,7 +129,7 @@ def plot():  # Plots how KE, PE and total energy change with each time step.
     plt.plot(plot_step, pe, 'r-.', label='PE')
     plt.plot(plot_step, total_e, 'k-', label='Total E')
     plt.legend(loc='upper right')
-    plt.xlabel("Step number")
+    plt.xlabel("Time (Gyrs)")
     plt.ylabel("Energy (J)")
 
 
@@ -138,7 +138,7 @@ def plot_fwbw():  # Plots how total energy changes with each time step, on an in
     plt.plot(plot_step, total_e, 'r-', label='Forwards TE')
     plt.plot(plot_step, RW_total_e, 'b--', label='Backwards TE')
     plt.legend(loc='upper right')
-    plt.xlabel("Step number")
+    plt.xlabel("Time (Gyrs)")
     plt.ylabel("Energy (J)")
 
 

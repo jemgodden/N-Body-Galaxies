@@ -20,6 +20,7 @@ class Body:
         self.v_xyz = velocity  # Array of x, y and z velocities of body.
         self.a_xyz = [0, 0, 0]  # Array of x, y and z acceleration of body.
         self.saved_xyz = [[], [], []]  # Array of all x, y and z position values of body.
+        self.saved_v_xyz = [[], [], []]  # Array of all x, y and z velocity values of body.
         self.colour = colour  # Colour of body on images.
 
     def name(self):
@@ -39,6 +40,9 @@ class Body:
 
     def saved_xyz(self):
         return self.saved_xyz
+
+    def saved_v_xyz(self):
+        return self.saved_v_xyz
 
     def colour(self):
         return self.colour
@@ -81,6 +85,31 @@ class Body:
 
         for i in range(len(r_xyz)):
             self.a_xyz[i] += a * (r_xyz[i] / r)
+
+    def calculate_dynamical_friction(self, other, galaxy_id):
+        r_xyz, r = self.find_separation(other)
+        v_xyz, v = self.find_relative_velocity(other)
+
+        density_distribution = 0
+        X = 0
+        epsilon = 28.5 * kpc
+        ln_lambda = math.log(r / (1.4 * epsilon))
+
+        if galaxy_id == primary:
+            density_distribution = rho_zero1 / ((r / R_s1) * (1 + (r / R_s1)) ** 2)
+            v_dispersion = V_max1 * ((1.4393 * (r / R_s1) ** 0.354) / (1 + 1.1756 * (r / R_s1) ** 0.725))
+            X = v / ((2 * v_dispersion) ** 0.5)
+
+        elif galaxy_id == secondary:
+            density_distribution = rho_zero2 / ((r / R_s2) * (1 + (r / R_s2)) ** 2)
+            v_dispersion = V_max2 * ((1.4393 * (r / R_s2) ** 0.354) / (1 + 1.1756 * (r / R_s2) ** 0.725))
+            X = v / ((2 * v_dispersion) ** 0.5)
+
+        a = - ((4 * math.pi * (G ** 2) * self.m * ln_lambda * density_distribution) / (v ** 2)) * (
+                    math.erf(X) - (2 * X / (math.pi ** 0.5)) * math.exp(-(X ** 2)))
+
+        for i in range(len(self.a_xyz)):
+            self.a_xyz[i] += a * (v_xyz[i] / v)
 
     def calculate_kinetic_energy(self):
         v = (self.v_xyz[0] ** 2) + (self.v_xyz[1] ** 2) + (self.v_xyz[2] ** 2)
@@ -205,9 +234,9 @@ def read_dmh_file(file_name, galaxy_id):
 
 def read_dark_matter_halos():
     if primary_live_dmh:
-        read_dmh_file("primary_live_dmh.txt", primary)
+        read_dmh_file(pri_dmh_file, primary)
     if secondary_live_dmh:
-        read_dmh_file("secondary_live_dmh.txt", secondary)
+        read_dmh_file(sec_dmh_file, secondary)
 
 
 #######################################################################################################################
@@ -437,6 +466,23 @@ def create_galaxy_disks():
 #######################################################################################################################
 
 
+def find_dynamical_friction(bodies, galaxy_id):
+    for body in bodies:
+        if galaxy_id == primary:
+            other = objects[find_galaxy(pri_galaxy_name)]
+            if body.name == sec_galaxy_name or body.name == sec_disk_name:
+                body.calculate_dynamical_friction(other, galaxy_id)
+            else:
+                continue
+
+        if galaxy_id == secondary:
+            other = objects[find_galaxy(sec_galaxy_name)]
+            if body.name == pri_galaxy_name or body.name == pri_disk_name:
+                body.calculate_dynamical_friction(other, galaxy_id)
+            else:
+                continue
+
+
 def find_dmh_acceleration(bodies, total_pe, galaxy_list_position, galaxy_id):
     other = objects[galaxy_list_position]
     for body in bodies:
@@ -461,8 +507,6 @@ def find_all_dmh_accelerations(bodies, total_pe):
 
 def find_newtonian_gravitation(bodies, total_pe):
     for body in bodies:
-        for i in range(len(body.a_xyz)):
-            body.a_xyz[i] = 0
         for other in bodies:
             if body is other:
                 continue
@@ -476,10 +520,20 @@ def find_newtonian_gravitation(bodies, total_pe):
 
 
 def find_all_accelerations(bodies, total_pe):
-    find_newtonian_gravitation(bodies, total_pe)
+    for body in bodies:
+        for i in range(len(body.a_xyz)):
+            body.a_xyz[i] = 0
+
+    if newtonian_gravity:
+        find_newtonian_gravitation(bodies, total_pe)
 
     if primary_dmh_potential or secondary_dmh_potential:
         find_all_dmh_accelerations(bodies, total_pe)
+
+    if primary_dynamical_friction:
+        find_dynamical_friction(bodies, primary)
+    if secondary_dynamical_friction:
+        find_dynamical_friction(bodies, secondary)
 
 
 #######################################################################################################################
@@ -535,6 +589,8 @@ def initial_leapfrog_step(bodies, step, step_ke, step_pe):
     for body in bodies:
         for i in range(len(body.saved_xyz)):
             body.saved_xyz[i].append(body.xyz[i])
+            if body.name == pri_galaxy_name or body.name == sec_galaxy_name:
+                body.saved_v_xyz[i].append(body.v_xyz[i])
 
         if calc_energy:
             total_ke += body.calculate_kinetic_energy()
@@ -560,6 +616,8 @@ def leapfrog_step(bodies, step, step_ke, step_pe):
     for body in bodies:
         for i in range(len(body.a_xyz)):
             body.v_xyz[i] += body.a_xyz[i] * (time_step / 2)
+            if body.name == pri_galaxy_name or body.name == sec_galaxy_name:
+                body.saved_v_xyz[i].append(body.v_xyz[i])
 
         if calc_energy:
             total_ke += body.calculate_kinetic_energy(other)
@@ -630,53 +688,70 @@ def file_print_galaxy_paths():
 #######################################################################################################################
 
 
-def plot_galaxy_separation(pericentres):
+def plot_galaxy_separation(separations, rel_velocities):
     time_steps = []
 
-    apocentre = max(pericentres)
-    apocentre = apocentre / kpc
-
-    for k in range(len(pericentres)):
-        pericentres[k] = pericentres[k] / kpc
-        time_steps.append(k)
+    for k in range(len(separations)):
+        separations[k] = separations[k] / kpc
+        rel_velocities[k] = rel_velocities[k] / km_s
+        time_steps.append(k * time_step / Gyr)
 
     plt.figure(figsize=(6, 6))
-    plt.plot(time_steps, pericentres, 'k.')
+    plt.plot(time_steps, separations, 'r-', label='Relative Distance')
+    plt.plot(time_steps, rel_velocities, 'b--', label='Relative Velocity')
     plt.gca().set_ylim(bottom=0)
-    plt.xlabel("Time step")
-    plt.ylabel("Distance between the galaxies (kpc)")
+    plt.legend(loc='upper right')
+    plt.xlabel("Time (Gyrs)")
+    plt.ylabel("Distance (kpc), Velocity ($kms^{-1}$)")
 
     plt.show()
 
-    print("\n\nThe apocentre was:", apocentre, "kpc.\n")
 
-
-def calculate_pericentre():
-    pericentres = []
+def find_separations_and_relative_velocity(separations, rel_velocities):
     xyz_pc = [None] * 3
+    v_xyz_pc = [None] * 3
+
     pri = find_galaxy(pri_galaxy_name)
     sec = find_galaxy(sec_galaxy_name)
 
     for i in range(len(objects[pri].saved_xyz[0])):
         for j in range(len(xyz_pc)):
             xyz_pc[j] = (objects[pri].saved_xyz[j][i] - objects[sec].saved_xyz[j][i]) ** 2
-        pericentres.append(math.sqrt(xyz_pc[0] + xyz_pc[1] + xyz_pc[2]))
+            v_xyz_pc[j] = (objects[pri].saved_v_xyz[j][i] - objects[sec].saved_v_xyz[j][i]) ** 2
+        separations.append(math.sqrt(xyz_pc[0] + xyz_pc[1] + xyz_pc[2]))
+        rel_velocities.append(math.sqrt(v_xyz_pc[0] + v_xyz_pc[1] + v_xyz_pc[2]))
 
-    min_pericentre = min(pericentres)
-    min_pericentre = min_pericentre / kpc
 
-    time_of_pericentre = ((pericentres.index(min(pericentres)) + 1) * time_step) / Gyr
+def calculate_separation_info():
+    separations = []
+    post_pc_separations = []
+    rel_velocities = []
+
+    find_separations_and_relative_velocity(separations, rel_velocities)
+
+    pericentre = min(separations)
+    pericentre_position = separations.index(min(separations))
+    pericentre = pericentre / kpc
+
+    for k in range(len(separations)):
+        if k >= pericentre_position:
+            post_pc_separations.append(separations[k])
+
+    apocentre = max(post_pc_separations) / kpc
+    print("\n\nThe apocentre was:", apocentre, "kpc.\n")
+
+    time_of_pericentre = ((separations.index(min(separations)) + 1) * time_step) / Gyr
     if gal_sep_plot:
-        plot_galaxy_separation(pericentres)
+        plot_galaxy_separation(separations, rel_velocities)
 
-    return min_pericentre, time_of_pericentre
+    return pericentre, time_of_pericentre
 
 
 def print_interaction_info():
     pericentre = 0
     time_of_pericentre = 0
     if not primary_isolation and not secondary_isolation:
-        pericentre, time_of_pericentre = calculate_pericentre()
+        pericentre, time_of_pericentre = calculate_separation_info()
     total_time = (time.time() - start_time) / 60
 
     print("\nRuntime: %.2f minutes.\n" % total_time)

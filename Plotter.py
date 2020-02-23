@@ -298,26 +298,26 @@ def plot():  # Plot images of interaction.
 
         if not primary_isolation and not secondary_isolation:
             if centre_pri:
-                ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], path1)  # Prints edited paths for when centring images on the primary galaxy.
+                ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], pri_path)  # Prints edited paths for when centring images on the primary galaxy.
                 if secondary_gal:
-                    ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], path2)
+                    ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], sec_path)
             elif centre_sec:
                 if primary_gal:
-                    ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], path1)  # Prints edited paths for when centring images on the primary galaxy.
-                ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], path2)
+                    ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], pri_path)  # Prints edited paths for when centring images on the primary galaxy.
+                ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], sec_path)
             elif origin_pri:
-                ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], path1)  # Plotting path of primary galaxy.
+                ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], pri_path)  # Plotting path of primary galaxy.
                 if secondary_gal:
-                    ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], path2)  # Plotting path of secondary galaxy.
+                    ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], sec_path)  # Plotting path of secondary galaxy.
             elif origin_sec:
                 if primary_gal:
-                    ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], path1)  # Plotting path of primary galaxy.
-                ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], path2)  # Plotting path of secondary galaxy.
+                    ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], pri_path)  # Plotting path of primary galaxy.
+                ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], sec_path)  # Plotting path of secondary galaxy.
             else:
                 if primary_gal:
-                    ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], path1)  # Plotting path of primary galaxy.
+                    ax.plot3D(PriGal2[0], PriGal2[1], PriGal2[2], pri_path)  # Plotting path of primary galaxy.
                 if secondary_gal:
-                    ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], path2)  # Plotting path of secondary galaxy.
+                    ax.plot3D(SecGal2[0], SecGal2[1], SecGal2[2], sec_path)  # Plotting path of secondary galaxy.
 
         for j in range(len(x)):  # Plotting all objects on figure.
             ax.plot3D([x[j]], [y[j]], [z[j]], colour[j])
