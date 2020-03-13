@@ -1,32 +1,32 @@
 # Simulation options:
 initial_txt = False  # Option to read the initial conditions from a text file.
 galaxy_files = False  # Option to read in all galaxy particles from specific text files for each galaxy.
-primary_isolation = False # Option to run a simulation of the primary galaxy, in isolation, at (0, 0, 0).
+primary_isolation = False  # Option to run a simulation of the primary galaxy, in isolation, at (0, 0, 0).
 secondary_isolation = False  # Option to run a simulation of the secondary galaxy, in isolation, at (0, 0, 0).
 rewind = False  # Option to run the simulation backwards.
 calc_energy = False  # Option to calculate energy during the simulation.
 softening = False  # Option to include softening in the simulation.
-random_disks = False
+random_disks = True  # Option to give each galaxy randomly distributed disk, as opposed to rings.
 
 # Galaxy options:
-newtonian_gravity = True
+newtonian_gravity = True  # Option to include newtonian gravity in the interaction.
 primary_gal = True  # Option to include the primary galaxy in the interaction.
 primary_disk = False  # Option to include a disk of particles as part of the Primary Galaxy.
 primary_dmh_potential = True  # Option to include a dark matter halo for the primary galaxy.
-primary_live_dmh = False
+primary_live_dmh = False  # Option to include a live dark matter halo for the primary galaxy in the interaction.
 primary_dynamical_friction = True  # Option for secondary particles to feel dynamical friction from the primary dmh.
 secondary_gal = True  # Option to include the secondary galaxy in the interaction.
 secondary_disk = False  # Option to include a disk of particles as part of the Secondary Galaxy.
 secondary_dmh_potential = True  # Option to include a dark matter halo for the secondary galaxy.
-secondary_live_dmh = False
-secondary_dynamical_friction = False  # Option for primary particles to feel dynamical friction from the secondary dmh.
+secondary_live_dmh = False  # Option to include a live dark matter halo for the secondary galaxy in the interaction.
+secondary_dynamical_friction = True  # Option for primary particles to feel dynamical friction from the secondary dmh.
 
 # Simulation viewing options:
 centre_mid = False  # Option to view the centre, between the two galaxies, of the interaction.
 centre_pri = False  # Option to view the Primary Galaxy, during the interaction.
 centre_sec = False  # Option to view the secondary Galaxy, during the interaction.
-origin_pri = True  # Option to view the Primary Galaxy staying at the origin during the interaction.
-origin_sec = False  # Option to view the Secondary Galaxy staying at the origin during the interaction.
+origin_pri = False  # Option to view the Primary Galaxy staying at the origin during the interaction.
+origin_sec = True  # Option to view the Secondary Galaxy staying at the origin during the interaction.
 gal_sep_plot = True  # Option to plot the distance between galaxies at each time step of the interaction.
 energy_fwds_bwds = False  # Option to view forwards and backwards energy of an interaction, on one graph.
 
@@ -38,14 +38,15 @@ kpc = 1e3 * pc  # Kilo-parsec in metres.
 sm = 1.989e30  # Solar Mass.
 yr = 60 * 60 * 24 * 365  # Year in seconds.
 Gyr = 1e9 * yr  # Giga-year in seconds.
+critical_density = 136 * sm / (kpc ** 3)  # Critical density of the universe.
 
 # Simulation time conditions:
-time_step = 1e5 * yr  # Time between each step.
-time_run = 4.5 * Gyr  # Total time simulation is run for.
+time_step = 2e5 * yr  # Time between each step.
+time_run = 3 * Gyr  # Total time simulation is run for.
 if rewind:
     time_step = - time_step  # Time between each step, running backwards.
     time_run = - time_run  # Total time simulation is run for, backwards.
-images = 11  # Total number of images shown. Remember to add 1 to make sure you get the beginning and end image.
+images = 5  # Total number of images shown. Remember to add 1 to make sure you get the beginning and end image.
 frames = images - 1  # Number of intervals between images being shown. Could be: frames = time_run / interval.
 no_step = time_run / time_step  # Total number of steps in simulation.
 interval = no_step / frames  # Number of data points between image data points.
@@ -55,60 +56,62 @@ image_time_step = time_run / (frames * Gyr)  # Time between images being shown.
 primary = 1
 secondary = 2
 
+separation_ratio = 65 / 601.23
+
 # Primary galaxy starting conditions:
-pri_galaxy_name = "M31"  # Name of the primary galaxy.
-mg1 = 1e10  # Mass of primary galaxy.
-xg1 = 0 * kpc  # x position of primary galaxy.
-yg1 = 0 * kpc  # y position of primary galaxy.
-zg1 = 0 * kpc  # y position of primary galaxy.
-vxg1 = 0 * km_s  # x velocity of primary galaxy.
-vyg1 = 0 * km_s  # y velocity of primary galaxy.
-vzg1 = 0 * km_s  # z velocity of primary galaxy.
+pri_galaxy_name = "NGC5257"  # Name of the primary galaxy.
+mg1 = 0.358e11  # Mass of primary galaxy.
+xg1 = -15.32 * kpc  # x position of primary galaxy.
+yg1 = -71.01 * kpc  # y position of primary galaxy.
+zg1 = -91.36 * kpc  # y position of primary galaxy.
+vxg1 = 59.67 * km_s  # x velocity of primary galaxy.
+vyg1 = -82.28 * km_s  # y velocity of primary galaxy.
+vzg1 = 29.01 * km_s  # z velocity of primary galaxy.
 pri_galaxy_marker = "bo"  # Colour and size of marker for primary galaxy being plotted.
 pri_path = "b-"  # Colour of path for primary galaxy being plotted.
 
 # Primary galaxy disk conditions:
-norm_spin1 = [0, 0, 1]  # Normalised spin of the primary galaxy for x, y and z directions.
-dr1 = 20 * kpc  # Radius of disk if primary galaxy.
-no_rings1 = 4.5  # Number of rings in primary galaxy.
+norm_spin1 = [0.992, 0.118, 0.048]  # Normalised spin of the primary galaxy for x, y and z directions.
+dr1 = 28.86 * kpc  # Radius of disk if primary galaxy.
+no_rings1 = 6  # Number of rings in primary galaxy.
 ring_rad1 = dr1 / no_rings1  # Radius of innermost ring from primary galaxy centre.
-no_rp1 = 4  # Number of particles in innermost ring of primary galaxy.
-tot_dp1 = 600  # no_rp1 * (sum(range(0, no_rings1 + 1)))  # Total number of particles in a disk of primary galaxy.
-mdp1 = 7e7 * sm / tot_dp1  # Mass of each particle in the primary disk.
+no_rp1 = 6  # Number of particles in innermost ring of primary galaxy.
+tot_dp1 = 1500  # no_rp1 * (sum(range(0, no_rings1 + 1)))  # Total number of particles in a disk of primary galaxy.
+mdp1 = 1  # Mass of each particle in the primary disk.
 mu1 = 0.3  # Mean value for the gaussian distribution of particles in the primary galaxy.
 sigma1 = 0.3  # Variance value for the gaussian distribution of particles in the primary galaxy.
-pri_disk_name = "pDisk"  # Name of all the particles in the primary galaxy disk.
+pri_disk_name = "pDisk"  # Name of all the disk particles in the primary galaxy.
 pri_disk_marker = "c."  # Colour and size of marker for primary galaxy disk particle being plotted.
 
 # Primary galaxy dark matter halo conditions:
-M_vir1 = 2e12 * sm  # Virial mass of the primary galaxy's dark matter halo.
-R_s1 = 41 * kpc  # Scale radius of primary galaxy's dark matter halo.
-c1 = 28  # Concentration of primary galaxy's dark matter halo.
-R_vir1 = c1 * R_s1  # Virial radius of primary galaxy's dark matter halo.
-rho_zero1 = 136 * sm / (kpc ** 3)
-V_max1 = 250 * km_s
-pri_dmh_name = "pDMH"
-pri_dmh_file = "pri_live_dmh.txt"
+M_vir1 = 1.12e11 * sm  # Virial mass of the primary galaxy's dark matter halo.
+R_s1 = 4.39 * kpc  # Scale radius of primary galaxy's dark matter halo.
+c1 = 6.1  # Concentration of primary galaxy's dark matter halo.
+R_vir1 = 26.8 * kpc  # Virial radius of primary galaxy's dark matter halo.
+rho_zero1 = 0.05 * sm / (pc ** 3)
+V_max1 = 325 * km_s  # Maximum velocity of a particle on the outside of the primary galaxy disk.
+pri_dmh_name = "pDMH"  # Name of all the dark matter halo particles in the primary galaxy.
+pri_dmh_file = "pri_live_dmh.txt"  # Name of the file that contains the particles for the primary galaxy's live dmh.
 
 # Secondary galaxy starting conditions:
-sec_galaxy_name = "M33"  # Name of the secondary galaxy.
-mg2 = 8.49e9 * sm  # Mass of secondary galaxy.
-xg2 = -278.1 * kpc  # x position of secondary galaxy.
-yg2 = 326.7 * kpc  # y position of secondary galaxy.
-zg2 = 44.5 * kpc  # z position of secondary galaxy.
-vxg2 = 56.5 * km_s  # x velocity of secondary galaxy.
-vyg2 = -6.5 * km_s  # y velocity of secondary galaxy.
-vzg2 = 32.8 * km_s  # z velocity of secondary galaxy.
+sec_galaxy_name = "NGC5258"  # Name of the secondary galaxy.
+mg2 = 0.406e11 * sm  # Mass of secondary galaxy.
+xg2 = 0 * kpc  # x position of secondary galaxy.
+yg2 = 0 * kpc  # y position of secondary galaxy.
+zg2 = 0 * kpc  # z position of secondary galaxy.
+vxg2 = 0 * km_s  # x velocity of secondary galaxy.
+vyg2 = 0 * km_s  # y velocity of secondary galaxy.
+vzg2 = 0 * km_s  # z velocity of secondary galaxy.
 sec_galaxy_marker = "ro"  # Colour and size of marker for primary galaxy being plotted.
 sec_path = "r-"  # Colour of path for secondary galaxy being plotted.
 
 # Secondary galaxy disk conditions:
-norm_spin2 = [0.048, 0.998, -0.038]  # Normalised spin of the primary galaxy for x, y and z directions.
-dr2 = 9.37 * kpc  # Radius of disk if secondary galaxy.
+norm_spin2 = [0.547, -0.800, -0.246]  # Normalised spin of the primary galaxy for x, y and z directions.
+dr2 = 24.215 * kpc  # Radius of disk if secondary galaxy.
 no_rings2 = 6  # Number of rings in secondary galaxy.
 ring_rad2 = dr2 / no_rings2  # Radius of innermost ring from secondary galaxy centre.
-no_rp2 = 4  # Number of particles in innermost ring of secondary galaxy.
-tot_dp2 = no_rp2 * (sum(range(0, no_rings2 + 1)))  # Total number of particles in a disk of secondary galaxy.
+no_rp2 = 6  # Number of particles in innermost ring of secondary galaxy.
+tot_dp2 = 1500  # no_rp2 * (sum(range(0, no_rings2 + 1)))  # Total number of particles in a disk of secondary galaxy.
 mdp2 = 1  # 7e9 * sm / tot_dp2 # Mass of each particle in the secondary disk.
 mu2 = 0.3  # Mean value for the gaussian distribution of particles in the secondary galaxy.
 sigma2 = 0.3  # Variance value for the gaussian distribution of particles in the secondary galaxy.
@@ -116,14 +119,14 @@ sec_disk_name = "sDisk"  # Name of all the particles in the secondary galaxy dis
 sec_disk_marker = "m."  # Colour and size of marker for secondary galaxy disk particle being plotted.
 
 # Secondary galaxy dark matter halo conditions:
-M_vir2 = 5.2e11 * sm  # Virial mass of the secondary galaxy's dark matter halo.
-R_s2 = 10.0 * kpc  # Scale radius of secondary galaxy's dark matter halo.
-c2 = 11  # Concentration of secondary galaxy's dark matter halo.
-R_vir2 = c2 * R_s2  # Virial radius of secondary galaxy's dark matter halo.
-rho_zero2 = 136 * sm / (kpc ** 3)
-V_max2 = 125 * km_s
-sec_dmh_name = "sDMH"
-sec_dmh_file = "sec_live_dmh.txt"
+M_vir2 = 2.46e11 * sm  # Virial mass of the secondary galaxy's dark matter halo.
+R_s2 = 8.30 * kpc  # Scale radius of secondary galaxy's dark matter halo.
+c2 = 4.3  # Concentration of secondary galaxy's dark matter halo.
+R_vir2 = 35.4 * kpc  # Virial radius of secondary galaxy's dark matter halo.
+rho_zero2 = 0.71 * sm / (pc ** 3)
+V_max2 = 320 * km_s  # Maximum velocity of a particle on the outside of the secondary galaxy disk.
+sec_dmh_name = "sDMH"  # Name of all the dark matter halo particles in the secondary galaxy.
+sec_dmh_file = "sec_live_dmh.txt"  # Name of the file that contains the particles for the secondary galaxy's live dmh.
 
 # Total number of particles in simulation:
 tot_part = 0
@@ -174,11 +177,11 @@ if secondary_isolation:
 
 '''
 To-Do list:
--Write bash script to automate finding initial conditions.
--Put in Dynamical Friction.
 -Put in Barnes-Hut algorithm.
 
--Clean up all other files.
+-Clean up all other files. Specify which type of particles plotted in rotation curve plotter.
+-Make sure all logic checks are proper.
+-Make more cases where initial conditions are forcefully set.
 
 -Put all comments in blocks above blocks of code, unless relating to a particular line.
 -Put everything into classes. Move classes out of main file, into their own one. Research classes.

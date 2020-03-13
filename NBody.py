@@ -86,27 +86,28 @@ class Body:
         for i in range(len(r_xyz)):
             self.a_xyz[i] += a * (r_xyz[i] / r)
 
-    def calculate_dynamical_friction(self, other, galaxy_id):
+    def calculate_dynamical_friction(self, other, causing_galaxy_id):
         r_xyz, r = self.find_separation(other)
         v_xyz, v = self.find_relative_velocity(other)
 
         density_distribution = 0
-        X = 0
+        v_dispersion = 0
+
         epsilon = 28.5 * kpc
         ln_lambda = math.log(r / (1.4 * epsilon))
 
-        if galaxy_id == primary:
+        if causing_galaxy_id == primary:
             density_distribution = rho_zero1 / ((r / R_s1) * (1 + (r / R_s1)) ** 2)
             v_dispersion = V_max1 * ((1.4393 * (r / R_s1) ** 0.354) / (1 + 1.1756 * (r / R_s1) ** 0.725))
-            X = v / ((2 * v_dispersion) ** 0.5)
 
-        elif galaxy_id == secondary:
+        elif causing_galaxy_id == secondary:
             density_distribution = rho_zero2 / ((r / R_s2) * (1 + (r / R_s2)) ** 2)
             v_dispersion = V_max2 * ((1.4393 * (r / R_s2) ** 0.354) / (1 + 1.1756 * (r / R_s2) ** 0.725))
-            X = v / ((2 * v_dispersion) ** 0.5)
+
+        X = v / ((2 ** 0.5) * v_dispersion)
 
         a = - ((4 * math.pi * (G ** 2) * self.m * ln_lambda * density_distribution) / (v ** 2)) * (
-                    math.erf(X) - (2 * X / (math.pi ** 0.5)) * math.exp(-(X ** 2)))
+                math.erf(X) - (2 * X / (math.pi ** 0.5)) * math.exp(-(X ** 2)))
 
         for i in range(len(self.a_xyz)):
             self.a_xyz[i] += a * (v_xyz[i] / v)
@@ -511,12 +512,12 @@ def find_newtonian_gravitation(bodies, total_pe):
             if body is other:
                 continue
             else:
-                # if (other.name != pri_disk_name) and (other.name != sec_disk_name):
-                body.calculate_newtonian_acceleration(other)
-                if calc_energy:
-                    total_pe += body.calculate_potential_energy(other)
-                # else:
-                #     continue
+                if (other.name != pri_disk_name) and (other.name != sec_disk_name):
+                    body.calculate_newtonian_acceleration(other)
+                    if calc_energy:
+                        total_pe += body.calculate_potential_energy(other)
+                else:
+                    continue
 
 
 def find_all_accelerations(bodies, total_pe):
@@ -633,6 +634,7 @@ def leapfrog_loop(bodies):
     step = 0
     step_ke = []
     step_pe = []
+    percent_time_start = 0
 
     print("Calculating...")
     initial_leapfrog_step(bodies, step, step_ke, step_pe)
@@ -645,6 +647,14 @@ def leapfrog_loop(bodies):
             if step == (a * no_step) / 100:
                 percent += 1.0
                 print(percent)
+                if percent == 1.0:
+                    percent_time_start = time.time()
+                if percent == 2.0:
+                    percent_time_end = time.time()
+                    average_percent_time = percent_time_end - percent_time_start
+                    print("One percent took ", average_percent_time, " seconds. It is expected for this simulation to "
+                          "take a further", (average_percent_time * 98), " seconds. This is equivalent to ",
+                          (average_percent_time * 98) / 60, " minutes.")
 
         if step == no_step:
             time_file_print_particles(bodies, step)
@@ -696,13 +706,19 @@ def plot_galaxy_separation(separations, rel_velocities):
         rel_velocities[k] = rel_velocities[k] / km_s
         time_steps.append(k * time_step / Gyr)
 
-    plt.figure(figsize=(6, 6))
-    plt.plot(time_steps, separations, 'r-', label='Relative Distance')
-    plt.plot(time_steps, rel_velocities, 'b--', label='Relative Velocity')
-    plt.gca().set_ylim(bottom=0)
-    plt.legend(loc='upper right')
-    plt.xlabel("Time (Gyrs)")
-    plt.ylabel("Distance (kpc), Velocity ($kms^{-1}$)")
+    fig, ax = plt.subplots()
+    ax.plot(time_steps, separations, 'r-', label='Relative Distance', linewidth=8)
+    ax.set_ylim([0, 350])
+    ax.set_xlabel("Time $(Gyrs)$", fontsize=28, weight='bold')
+    ax.set_ylabel("Relative Distance $(kpc)$", fontsize=30, color='red', weight='bold')
+    ax2 = ax.twinx()
+    ax2.plot(time_steps, rel_velocities, 'b-', label='Relative Velocity', linewidth=8)
+    ax2.set_ylim([0, 350])
+    ax2.set_ylabel("Relative Velocity $(kms^{-1})$", fontsize=30, color='blue', weight='bold')
+
+    ax.tick_params(labelsize=28, axis='y', colors='red')
+    ax.tick_params(labelsize=28, axis='x')
+    ax2.tick_params(labelsize=28, colors='blue')
 
     plt.show()
 
