@@ -12,3 +12,11 @@ Interaction options in IntData.
 Images plotted by separate function.
 
 Dark matter halo potential for each galaxy implemented, acting on all particles other than galaxy centre.
+
+Added disk plane rotations.
+
+Added stable randomly distributed galaxy disks.
+
+Added Dynamical Friction.
+
+Stripped NBody Code and automation for finding initial conditions.
