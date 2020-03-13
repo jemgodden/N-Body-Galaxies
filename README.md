@@ -20,3 +20,5 @@ Added stable randomly distributed galaxy disks.
 Added Dynamical Friction.
 
 Stripped NBody Code and automation for finding initial conditions.
+
+Density plottera for galaxy and disk analysis.
