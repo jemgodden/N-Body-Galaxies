@@ -29,6 +29,10 @@ point_size = 20
 font_size = 18
 label_size = 18
 
+x_los = [0, 4.113]
+y_los = [0, -8.853]
+z_los = [0, -2.178]
+
 
 def find_galaxy(galaxy_name, names):  # Finds position of a galaxy in the list of bodies.
     position = 0
@@ -107,15 +111,16 @@ def get_galaxy_data():
 def plot():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
-    pri_plot = ax.scatter(pri_x, pri_y, pri_z, c=pri_rad, cmap='Blues', s=point_size)
-    sec_plot = ax.scatter(sec_x, sec_y, sec_z, c=sec_rad, cmap='Reds', s=point_size)
+    pri_plot = ax.scatter(pri_x, pri_y, pri_z, c=pri_rad, cmap='Blues', s=point_size, depthshade=False)
+    sec_plot = ax.scatter(sec_x, sec_y, sec_z, c=sec_rad, cmap='Reds', s=point_size, depthshade=False)
+    # ax.plot(x_los, y_los, z_los, 'k-')
     ax.set_axis_off()
 
     pri_cb = fig.colorbar(pri_plot)
-    pri_cb.set_label(label='Initial radius from centre of primary galaxy', size=18)
+    pri_cb.set_label(label='Initial Radius from Centre of NGC5257 $(kpc)$', size=18)
     pri_cb.ax.tick_params(labelsize=18)
     sec_cb = fig.colorbar(sec_plot)
-    sec_cb.set_label(label='Initial radius from centre of secondary galaxy', size=18)
+    sec_cb.set_label(label='Initial radius from centre of NGC5258 $(kpc)$', size=18)
     sec_cb.ax.tick_params(labelsize=18)
     plt.show()
 

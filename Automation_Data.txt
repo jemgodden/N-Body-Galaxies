@@ -1,1 +1,0 @@
-# Pri_x Pri_y   Pri_z   Pri_vx  Pri_vy  Pri_vz  Sec_x   Sec_y   Sec_z   Sec_vx  Sec_vy  Sec_vz  Pericentre(kpc)  Time_of_pericentre(Gyrs)  Separation(kpc) initial_Pri_vx initial_Pri_vy initial_Pri_vz

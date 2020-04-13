@@ -11,12 +11,12 @@ random_disks = True  # Option to give each galaxy randomly distributed disk, as 
 # Galaxy options:
 newtonian_gravity = True  # Option to include newtonian gravity in the interaction.
 primary_gal = True  # Option to include the primary galaxy in the interaction.
-primary_disk = False  # Option to include a disk of particles as part of the Primary Galaxy.
+primary_disk = True  # Option to include a disk of particles as part of the Primary Galaxy.
 primary_dmh_potential = True  # Option to include a dark matter halo for the primary galaxy.
 primary_live_dmh = False  # Option to include a live dark matter halo for the primary galaxy in the interaction.
 primary_dynamical_friction = True  # Option for secondary particles to feel dynamical friction from the primary dmh.
 secondary_gal = True  # Option to include the secondary galaxy in the interaction.
-secondary_disk = False  # Option to include a disk of particles as part of the Secondary Galaxy.
+secondary_disk = True  # Option to include a disk of particles as part of the Secondary Galaxy.
 secondary_dmh_potential = True  # Option to include a dark matter halo for the secondary galaxy.
 secondary_live_dmh = False  # Option to include a live dark matter halo for the secondary galaxy in the interaction.
 secondary_dynamical_friction = True  # Option for primary particles to feel dynamical friction from the secondary dmh.
@@ -27,7 +27,7 @@ centre_pri = False  # Option to view the Primary Galaxy, during the interaction.
 centre_sec = False  # Option to view the secondary Galaxy, during the interaction.
 origin_pri = False  # Option to view the Primary Galaxy staying at the origin during the interaction.
 origin_sec = True  # Option to view the Secondary Galaxy staying at the origin during the interaction.
-gal_sep_plot = True  # Option to plot the distance between galaxies at each time step of the interaction.
+gal_sep_plot = False  # Option to plot the distance between galaxies at each time step of the interaction.
 energy_fwds_bwds = False  # Option to view forwards and backwards energy of an interaction, on one graph.
 
 # Constants:
@@ -42,11 +42,11 @@ critical_density = 136 * sm / (kpc ** 3)  # Critical density of the universe.
 
 # Simulation time conditions:
 time_step = 2e5 * yr  # Time between each step.
-time_run = 3 * Gyr  # Total time simulation is run for.
+time_run = 1.5 * Gyr  # Total time simulation is run for.
 if rewind:
     time_step = - time_step  # Time between each step, running backwards.
     time_run = - time_run  # Total time simulation is run for, backwards.
-images = 5  # Total number of images shown. Remember to add 1 to make sure you get the beginning and end image.
+images = 31  # Total number of images shown. Remember to add 1 to make sure you get the beginning and end image.
 frames = images - 1  # Number of intervals between images being shown. Could be: frames = time_run / interval.
 no_step = time_run / time_step  # Total number of steps in simulation.
 interval = no_step / frames  # Number of data points between image data points.
@@ -56,17 +56,17 @@ image_time_step = time_run / (frames * Gyr)  # Time between images being shown.
 primary = 1
 secondary = 2
 
-separation_ratio = 65 / 601.23
+separation_ratio = 55 / 601.23
 
 # Primary galaxy starting conditions:
 pri_galaxy_name = "NGC5257"  # Name of the primary galaxy.
-mg1 = 0.358e11  # Mass of primary galaxy.
-xg1 = -15.32 * kpc  # x position of primary galaxy.
-yg1 = -71.01 * kpc  # y position of primary galaxy.
-zg1 = -91.36 * kpc  # y position of primary galaxy.
-vxg1 = 59.67 * km_s  # x velocity of primary galaxy.
-vyg1 = -82.28 * km_s  # y velocity of primary galaxy.
-vzg1 = 29.01 * km_s  # z velocity of primary galaxy.
+mg1 = 0.358e11 * sm  # Mass of primary galaxy.
+xg1 = -32.0 * kpc  # x position of primary galaxy.
+yg1 = -38.4 * kpc  # y position of primary galaxy.
+zg1 = -93.4 * kpc  # y position of primary galaxy.
+vxg1 = 61.5 * km_s  # x velocity of primary galaxy.
+vyg1 = -117.0 * km_s  # y velocity of primary galaxy.
+vzg1 = 1.5 * km_s  # z velocity of primary galaxy.
 pri_galaxy_marker = "bo"  # Colour and size of marker for primary galaxy being plotted.
 pri_path = "b-"  # Colour of path for primary galaxy being plotted.
 
@@ -106,7 +106,7 @@ sec_galaxy_marker = "ro"  # Colour and size of marker for primary galaxy being p
 sec_path = "r-"  # Colour of path for secondary galaxy being plotted.
 
 # Secondary galaxy disk conditions:
-norm_spin2 = [0.547, -0.800, -0.246]  # Normalised spin of the primary galaxy for x, y and z directions.
+norm_spin2 = [-0.547, 0.800, 0.246]  # Normalised spin of the primary galaxy for x, y and z directions.
 dr2 = 24.215 * kpc  # Radius of disk if secondary galaxy.
 no_rings2 = 6  # Number of rings in secondary galaxy.
 ring_rad2 = dr2 / no_rings2  # Radius of innermost ring from secondary galaxy centre.

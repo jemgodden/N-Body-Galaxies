@@ -17,7 +17,7 @@ y2 = []
 z2 = []
 density2 = []
 
-density_radius = 2 * kpc
+density_radius = 2.5 * kpc
 final_image_time = 1.50000
 
 pri_axis_limit = 25
@@ -103,66 +103,177 @@ def get_galaxy_data(names, x, y, z, density, galaxy_name):
     change_units(x, y, z)
 
 
+def find_specific_separation(xi, yi, zi, xj, yj, zj):
+    rx = xi - xj
+    ry = yi - yj
+    rz = zi - zj
+    r = math.sqrt((rx ** 2) + (ry ** 2) + (rz ** 2))
+    return r
+
+
+def refine():
+    pri = find_galaxy(x1, pri_galaxy_name)
+    sec = find_galaxy(x2, sec_galaxy_name)
+
+    pri_list = []
+    sec_list = []
+
+    for i in range(len(x1)):
+        if i == pri:
+            continue
+        else:
+            pri_r = find_specific_separation(x1[pri], y1[pri], z1[pri], x1[i], y1[i], z1[i])
+            sec_r = find_specific_separation(x2[sec], y2[sec], z2[sec], x1[i], y1[i], z1[i])
+            if pri_r > 30 and sec_r > 30:
+                pri_list.append(i)
+
+    for j in range(len(x2)):
+        if j == sec:
+            continue
+        else:
+            pri_r = find_specific_separation(x1[pri], y1[pri], z1[pri], x2[j], y2[j], z2[j])
+            sec_r = find_specific_separation(x2[sec], y2[sec], z2[sec], x2[j], y2[j], z2[j])
+            if pri_r > 30 and sec_r > 30:
+                sec_list.append(j)
+
+    for m in range(len(pri_list)-1, 0, -1):
+        names1.pop(pri_list[m])
+        x1.pop(pri_list[m])
+        y1.pop(pri_list[m])
+        z1.pop(pri_list[m])
+        density1.pop(pri_list[m])
+
+    for n in range(len(sec_list)-1, 0, -1):
+        names2.pop(pri_list[n])
+        x2.pop(pri_list[n])
+        y2.pop(pri_list[n])
+        z2.pop(pri_list[n])
+        density2.pop(pri_list[n])
+
+
 def plot():  # Plot images of interaction.
-    fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3)  # Creates figure.
+    # fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3)
+    #
+    # if primary_gal:
+    #     ax1.set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax1.set_ylabel('Y $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax1.set_xlim(-pri_axis_limit, pri_axis_limit)
+    #     ax1.set_ylim(-pri_axis_limit, pri_axis_limit)
+    #     ax1.tick_params(labelsize=label_size)
+    #
+    #     ax1.scatter(x1, y1, c=density1, cmap='plasma', s=point_size)
+    #     ax2.set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax2.set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax2.set_xlim(-pri_axis_limit, pri_axis_limit)
+    #     ax2.set_ylim(-pri_axis_limit, pri_axis_limit)
+    #     ax2.tick_params(labelsize=label_size)
+    #
+    #     ax2.scatter(x1, z1, c=density1, cmap='plasma', s=point_size)
+    #     ax3.set_xlabel('Y $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax3.set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax3.set_xlim(-pri_axis_limit, pri_axis_limit)
+    #     ax3.set_ylim(-pri_axis_limit, pri_axis_limit)
+    #     ax3.tick_params(labelsize=label_size)
+    #
+    #     # im3 = ax3.scatter(y1, z1, c=density1, cmap='plasma', s=point_size)
+    #     # divider = make_axes_locatable(ax3)
+    #     # cax1 = divider.append_axes("right", size="5%", pad=0.05)
+    #     # cb1 = fig.colorbar(im3, cax=cax1)
+    #     # cb1.set_label(label='Nearest Neighbour Density', size=16)
+    #     # cb1.ax.tick_params(labelsize=16)
+    #
+    # if secondary_gal:
+    #     ax4.set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax4.set_ylabel('Y $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax4.set_xlim(-sec_axis_limit, sec_axis_limit)
+    #     ax4.set_ylim(-sec_axis_limit, sec_axis_limit)
+    #     ax4.tick_params(labelsize=label_size)
+    #
+    #     ax4.scatter(x2, y2, c=density2, cmap='plasma', s=point_size)
+    #     ax5.set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax5.set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax5.set_xlim(-sec_axis_limit, sec_axis_limit)
+    #     ax5.set_ylim(-sec_axis_limit, sec_axis_limit)
+    #     ax5.tick_params(labelsize=label_size)
+    #
+    #     ax5.scatter(x2, z2, c=density2, cmap='plasma', s=point_size)
+    #     ax6.set_xlabel('Y $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax6.set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
+    #     ax6.set_xlim(-sec_axis_limit, sec_axis_limit)
+    #     ax6.set_ylim(-sec_axis_limit, sec_axis_limit)
+    #     ax6.tick_params(labelsize=label_size)
+    #
+    #     # im6 = ax6.scatter(y2, z2, c=density2, cmap='plasma', s=point_size)
+    #     # divider = make_axes_locatable(ax6)
+    #     # cax1 = divider.append_axes("right", size="5%", pad=0.05)
+    #     # cb2 = fig.colorbar(im6, cax=cax1)
+    #     # cb2.set_label(label='Nearest Neighbour Density', size=16)
+    #     # cb2.ax.tick_params(labelsize=16)
+    #
+    # im3 = ax3.scatter(y1, z1, c=density1, cmap='plasma', s=point_size)
+    # # divider = make_axes_locatable(ax3)
+    # # cax1 = divider.append_axes("right", size="5%", pad=0.05)
+    # cb1 = fig.colorbar(im3, ax=ax.ravel().tolist())
+    # cb1.set_label(label='Nearest Neighbour Density', size=18)
+    # cb1.ax.tick_params(labelsize=18)
+    #
+    # # plt.subplots_adjust(wspace=0.3)
+    #
+    # fig.tight_layout(pad=-2.0)
+    # plt.show()
+
+    fig, axs = plt.subplots(2, 3)
 
     if primary_gal:
-        ax1.set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')  # Fix how all of these plots look.
-        ax1.set_ylabel('Y $(kpc)$', fontsize=font_size, weight='bold')
-        ax1.set_xlim(-pri_axis_limit, pri_axis_limit)
-        ax1.set_ylim(-pri_axis_limit, pri_axis_limit)
-        ax1.tick_params(labelsize=label_size)
+        axs[0, 0].set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
+        axs[0, 0].set_ylabel('Y $(kpc)$', fontsize=font_size, weight='bold')
+        axs[0, 0].set_xlim(-pri_axis_limit, pri_axis_limit)
+        axs[0, 0].set_ylim(-pri_axis_limit, pri_axis_limit)
+        axs[0, 0].tick_params(labelsize=label_size)
+        axs[0, 0].scatter(x1, y1, c=density1, cmap='plasma', s=point_size)
 
-        ax1.scatter(x1, y1, c=density1, cmap='plasma', s=point_size)
-        ax2.set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
-        ax2.set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
-        ax2.set_xlim(-pri_axis_limit, pri_axis_limit)
-        ax2.set_ylim(-pri_axis_limit, pri_axis_limit)
-        ax2.tick_params(labelsize=label_size)
+        axs[0, 1].set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
+        axs[0, 1].set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
+        axs[0, 1].set_xlim(-pri_axis_limit, pri_axis_limit)
+        axs[0, 1].set_ylim(-pri_axis_limit, pri_axis_limit)
+        axs[0, 1].tick_params(labelsize=label_size)
+        axs[0, 1].scatter(x1, z1, c=density1, cmap='plasma', s=point_size)
 
-        ax2.scatter(x1, z1, c=density1, cmap='plasma', s=point_size)
-        ax3.set_xlabel('Y $(kpc)$', fontsize=font_size, weight='bold')
-        ax3.set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
-        ax3.set_xlim(-pri_axis_limit, pri_axis_limit)
-        ax3.set_ylim(-pri_axis_limit, pri_axis_limit)
-        ax3.tick_params(labelsize=label_size)
-
-        im3 = ax3.scatter(y1, z1, c=density1, cmap='plasma', s=point_size)
-        divider = make_axes_locatable(ax3)
-        cax1 = divider.append_axes("right", size="5%", pad=0.05)
-        cb1 = fig.colorbar(im3, cax=cax1)
-        cb1.set_label(label='Nearest Neighbour Density', size=16)
-        cb1.ax.tick_params(labelsize=16)
+        axs[0, 2].set_xlabel('Y $(kpc)$', fontsize=font_size, weight='bold')
+        axs[0, 2].set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
+        axs[0, 2].set_xlim(-pri_axis_limit, pri_axis_limit)
+        axs[0, 2].set_ylim(-pri_axis_limit, pri_axis_limit)
+        axs[0, 2].tick_params(labelsize=label_size)
+        cbp = axs[0, 2].scatter(y1, z1, c=density1, cmap='plasma', s=point_size)
 
     if secondary_gal:
-        ax4.set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
-        ax4.set_ylabel('Y $(kpc)$', fontsize=font_size, weight='bold')
-        ax4.set_xlim(-sec_axis_limit, sec_axis_limit)
-        ax4.set_ylim(-sec_axis_limit, sec_axis_limit)
-        ax4.tick_params(labelsize=label_size)
+        axs[1, 0].set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
+        axs[1, 0].set_ylabel('Y $(kpc)$', fontsize=font_size, weight='bold')
+        axs[1, 0].set_xlim(-sec_axis_limit, sec_axis_limit)
+        axs[1, 0].set_ylim(-sec_axis_limit, sec_axis_limit)
+        axs[1, 0].tick_params(labelsize=label_size)
+        axs[1, 0].scatter(x2, y2, c=density2, cmap='plasma', s=point_size)
 
-        ax4.scatter(x2, y2, c=density2, cmap='plasma', s=point_size)
-        ax5.set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
-        ax5.set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
-        ax5.set_xlim(-sec_axis_limit, sec_axis_limit)
-        ax5.set_ylim(-sec_axis_limit, sec_axis_limit)
-        ax5.tick_params(labelsize=label_size)
+        axs[1, 1].set_xlabel('X $(kpc)$', fontsize=font_size, weight='bold')
+        axs[1, 1].set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
+        axs[1, 1].set_xlim(-sec_axis_limit, sec_axis_limit)
+        axs[1, 1].set_ylim(-sec_axis_limit, sec_axis_limit)
+        axs[1, 1].tick_params(labelsize=label_size)
+        axs[1, 1].scatter(x2, z2, c=density2, cmap='plasma', s=point_size)
 
-        ax5.scatter(x2, z2, c=density2, cmap='plasma', s=point_size)
-        ax6.set_xlabel('Y $(kpc)$', fontsize=font_size, weight='bold')
-        ax6.set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
-        ax6.set_xlim(-sec_axis_limit, sec_axis_limit)
-        ax6.set_ylim(-sec_axis_limit, sec_axis_limit)
-        ax6.tick_params(labelsize=label_size)
+        axs[1, 2].set_xlabel('Y $(kpc)$', fontsize=font_size, weight='bold')
+        axs[1, 2].set_ylabel('Z $(kpc)$', fontsize=font_size, weight='bold')
+        axs[1, 2].set_xlim(-sec_axis_limit, sec_axis_limit)
+        axs[1, 2].set_ylim(-sec_axis_limit, sec_axis_limit)
+        axs[1, 2].tick_params(labelsize=label_size)
+        axs[1, 2].scatter(y2, z2, c=density2, cmap='plasma', s=point_size)
 
-        im6 = ax6.scatter(y2, z2, c=density2, cmap='plasma', s=point_size)
-        divider = make_axes_locatable(ax6)
-        cax1 = divider.append_axes("right", size="5%", pad=0.05)
-        cb2 = fig.colorbar(im6, cax=cax1)
-        cb2.set_label(label='Nearest Neighbour Density', size=16)
-        cb2.ax.tick_params(labelsize=16)
+    plt.subplots_adjust(wspace=0.3)
 
-    fig.tight_layout(pad=-2.3)
+    cb = fig.colorbar(cbp, ax=axs)
+    cb.set_label(label='Nearest Neighbour Density', size=18)
+    cb.ax.tick_params(labelsize=18)
+
     plt.show()
 
 
@@ -173,6 +284,8 @@ def main():  # Calling all functions in order.
         get_galaxy_data(names1, x1, y1, z1, density1, pri_galaxy_name)
     if secondary_gal:
         get_galaxy_data(names2, x2, y2, z2, density2, sec_galaxy_name)
+
+    refine()
 
     plot()
 

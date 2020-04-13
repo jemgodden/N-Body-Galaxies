@@ -78,12 +78,12 @@ def calc_data():
 
 
 def plot_rot_curve():
-    print("Producing images...\n")
     plt.figure(figsize=(6, 6))
-    plt.plot(r, v, 'k.')  # Plots distance from centre against particle velocity.
+    plt.plot(r, v, 'k.', markersize=18)  # Plots distance from centre against particle velocity.
     plt.gca().set_ylim(bottom=0)
-    plt.xlabel("Distance from centre of galaxy (kpc)")
-    plt.ylabel("Radial velocity (km/s)")
+    plt.xlabel("Distance from Centre of NGC5258 $(kpc)$", weight='bold', fontsize=28)
+    plt.ylabel("Radial velocity $(km/s)$", weight='bold', fontsize=28)
+    plt.tick_params(labelsize=26)
 
     plt.show()
 

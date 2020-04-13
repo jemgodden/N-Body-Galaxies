@@ -180,7 +180,7 @@ def read_file(file_name):
     file.close()
 
 
-def read_galaxy_file_line(line):
+def read_galaxy_file_line(file_name, line):
     data = line.strip().split()
     if file_name == "Primary_Galaxy.txt":
         objects.append(Body(data[0], float(data[1]),
@@ -195,7 +195,7 @@ def read_galaxy_file_line(line):
 def read_galaxy_file(file_name):
     file = open(file_name, "r")
     for line in file:
-        read_galaxy_file_line(line)
+        read_galaxy_file_line(file_name, line)
     file.close()
 
 
@@ -708,12 +708,12 @@ def plot_galaxy_separation(separations, rel_velocities):
 
     fig, ax = plt.subplots()
     ax.plot(time_steps, separations, 'r-', label='Relative Distance', linewidth=8)
-    ax.set_ylim([0, 350])
+    # ax.set_ylim([0, 300])
     ax.set_xlabel("Time $(Gyrs)$", fontsize=28, weight='bold')
     ax.set_ylabel("Relative Distance $(kpc)$", fontsize=30, color='red', weight='bold')
     ax2 = ax.twinx()
     ax2.plot(time_steps, rel_velocities, 'b-', label='Relative Velocity', linewidth=8)
-    ax2.set_ylim([0, 350])
+    # ax2.set_ylim([0, 300])
     ax2.set_ylabel("Relative Velocity $(kms^{-1})$", fontsize=30, color='blue', weight='bold')
 
     ax.tick_params(labelsize=28, axis='y', colors='red')
@@ -818,8 +818,8 @@ def file_simulation():
 
 
 def galaxy_files_simulation():
-    read_file("Primary_Galaxy.txt")
-    read_file("Secondary_Galaxy.txt")
+    read_galaxy_file("Primary_Galaxy.txt")
+    read_galaxy_file("Secondary_Galaxy.txt")
 
     leapfrog_loop(objects)
 
