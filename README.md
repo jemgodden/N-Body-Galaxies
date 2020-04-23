@@ -1,4 +1,19 @@
 # MPhys-Project-N-Body-Code
+
+# Downloading
+
+The easiest way to download the code is to press the download button on the home page of the GitHub repository.
+
+# Requirements
+
+To run the program a Python 3 compiler is required, along with the following libraries: Math, Time, MatPlotLib, NumPy, SciPy and OS.
+
+# Use
+
+This code does not currently support specifying parameters in the code from the command line. Instead, parameters, commonly stated at the top of the file, should be edited to the desired values before being run.
+
+# Log
+
 The N-Body code written to simulate interacting galaxies, for MPhys project.
 
 Sixth generation of an N-Body code for modelling galaxy interactions. Each galaxy has a disk of test particles that do not generate a force on other bodies. The disk plane can be rotated in the 3d area using normalised spin values in IntData.py.
