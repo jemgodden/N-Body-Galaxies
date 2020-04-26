@@ -43,3 +43,5 @@ Analysis function to see disk particle radii stripped by other galaxy.
 Extra rotation curve plotter.
 
 Function to view galaxy paths in 2D plane of interaction.
+
+Rotation curve corrections.
