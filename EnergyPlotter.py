@@ -36,7 +36,7 @@ def read_energy_file():  # Reads the kinetic energy files made by NBody Code.
     for line in file:
         data = line.strip().split()
         ke.append(float(data[0]))
-        ke.append(float(data[1]))
+        pe.append(float(data[1]))
     file.close()
 
 
@@ -65,7 +65,7 @@ def find_variables():  # Finds variables used for plotting.
 
 def find_steps():  # Creates a list of numbers that represent each time step.
     for i in range(len(ke)):
-        plot_step.append(i * time_step / Gyrs)
+        plot_step.append(i * time_step / Gyr)
 
 
 def find_total_e():  # Calculates the total energy at each time step.
@@ -150,12 +150,14 @@ def main():
 
     find_variables()
 
-    if energy_fwds_bwds:
-        print("\nNo information is available when plotting the energy forwards and backwards on the same graph.")
-        plot_fwbw()
-    else:
-        manipulation()
-        plot()
+    manipulation()
+
+    # if energy_fwds_bwds:
+    #     print("\nNo information is available when plotting the energy forwards and backwards on the same graph.")
+    #     plot_fwbw()
+    # else:
+    #     manipulation()
+    #     plot()
 
     plt.show()
 

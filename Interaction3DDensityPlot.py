@@ -16,16 +16,13 @@ density = []
 density_radius = 2.5 * kpc
 final_image_time = 1.50000
 
-pri_axis_limit = 25
-sec_axis_limit = 25
-
 point_size = 20
 font_size = 18
 label_size = 18
 
-x_los = [0, 4.113]
-y_los = [0, -8.853]
-z_los = [0, -2.178]
+x_los = [0, 41.13]
+y_los = [0, -88.53]
+z_los = [0, -21.78]
 
 
 def find_galaxy(galaxy_name):  # Finds position of a galaxy in the list of bodies.
@@ -112,7 +109,7 @@ def refine():
         else:
             pri_r = find_separation(pri, i)
             sec_r = find_separation(sec, i)
-            if pri_r > 30 and sec_r > 30:
+            if pri_r > 300 and sec_r > 300:
                 pop_list.append(i)
 
     for m in range(len(pop_list)-1, 0, -1):
@@ -140,7 +137,7 @@ def main():  # Calling all functions in order.
 
     get_galaxy_data()
 
-    # refine()
+    refine()
 
     plot()
 

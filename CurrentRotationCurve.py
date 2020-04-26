@@ -64,30 +64,112 @@ def find_galaxy(galaxy_name, names):  # Finds position of a galaxy in the list o
     return position
 
 
-def calc_data(galaxy_name, names, x, y, z, vx, vy, vz, r, v):
+def get_vector_magnitude(v):
+    return math.sqrt((v[0] ** 2) + (v[1] ** 2) + (v[2] ** 2))
+
+
+def dot_product(v1, v2):
+    x = 0
+    for i in range(len(v1)):
+        x += v1[i] * v2[i]
+    return x
+
+
+def angle_between_vectors(v1, v2):
+    v1_mag = get_vector_magnitude(v1)
+    v2_mag = get_vector_magnitude(v2)
+    dot_prod = dot_product(v1, v2)
+    return math.acos(dot_prod / (v1_mag * v2_mag))
+
+
+def cross_product(v1, v2):
+    n = []
+    n.append((v2[2] * v1[1]) - (v2[1] * v1[2]))
+    n.append((v2[0] * v1[2]) - (v2[2] * v1[0]))
+    n.append((v2[1] * v1[0]) - (v2[0] * v1[1]))
+    return n
+
+
+def get_radial_velocity(uxyz, dxyz, n):
+    x_prod = cross_product(dxyz, n)
+    theta = angle_between_vectors(uxyz, x_prod)
+    vxyz = []
+    for i in range(len(uxyz)):
+        vxyz.append(uxyz[i] * math.cos(theta))
+    return get_vector_magnitude(vxyz)
+
+
+def find_radial_velocity(galaxy_name, names, x, y, z, vx, vy, vz, r, v):
+    if galaxy_name == pri_galaxy_name:
+        max_r = dr1
+        n = norm_spin1
+    elif galaxy_name == sec_galaxy_name:
+        max_r = dr2
+        n = norm_spin2
+
     gal = find_galaxy(galaxy_name, names)
 
     for i in range(len(x)-1):
         if i == gal:
             continue
         else:
-            d = math.sqrt((x[gal]-x[i])**2 + (y[gal]-y[i])**2 + (z[gal]-z[i])**2)
-            if d < (30 * kpc):
+            dxyz = [x[i] - x[gal], y[i] - y[gal], z[i] - z[gal]]
+            d = math.sqrt(dxyz[0] ** 2 + dxyz[1] ** 2 + dxyz[2] ** 2)
+            if d < max_r:
                 r.append(d/kpc)
-                u = math.sqrt((vx[i])**2 + (vy[i])**2 + (vz[i])**2)
+
+                uxyz = [vx[i] - vx[gal], vy[i] - vy[gal], vz[i] - vz[gal]]
+                u = get_radial_velocity(uxyz, dxyz, n)
                 v.append(u/km_s)
             else:
                 continue
 
 
+def func(x_plot, a, b, c):
+    f = []
+    for i in range(len(x_plot)):
+        f.append(a * np.exp(-b * x_plot[i]) + c)
+    return f
+
+
 def plot_rot_curve(galaxy_id, r, v):
+    r, v = (list(t) for t in zip(*sorted(zip(r, v))))
+
+    # bins = 15
+    # if galaxy_id == primary:
+    #     d = dr1 / bins
+    # elif galaxy_id == secondary:
+    #     d = dr2 / bins
+    # v_avg = []
+    # r_bin = []
+    # for j in range(bins):
+    #     n = 0
+    #     v_tot = 0
+    #     for i in range(len(r)):
+    #         if (j * d / kpc) < r[i] <= ((j + 1) * d / kpc):
+    #             n += 1
+    #             v_tot += v[i]
+    #         else:
+    #             continue
+    #     if n == 0:
+    #         continue
+    #     else:
+    #         v_avg.append(v_tot / n)
+    #         r_bin.append((j + 0.5) * d / kpc)
+
+    popt1, pcov1 = curve_fit(func, r, v, p0=(1, 1, 1))
+    # popt2, pcov2 = curve_fit(func, r_bin, v_avg, p0=(1, 1, 1))
+
     plt.figure(figsize=(6, 6))
-    plt.plot(r, v, 'k.', markersize=18)  # Plots distance from centre against particle velocity.
+    plt.plot(r, v, 'b.', markersize=18)
+    plt.plot(r, func(r, *popt1), 'r-', linewidth=8)
+    # plt.plot(r_bin, v_avg, 'r-', linewidth=8)
+    # plt.plot(r_bin, func(r_bin, *popt2), 'r-', linewidth=8)
     plt.gca().set_ylim(bottom=0)
     if galaxy_id == primary:
-        plt.xlabel("Distance from Centre of NGC5257 $(kpc)$", weight='bold', fontsize=28)
+        plt.xlabel("Distance from Centre of NGC 5257 $(kpc)$", weight='bold', fontsize=28)
     elif galaxy_id == secondary:
-        plt.xlabel("Distance from Centre of NGC5258 $(kpc)$", weight='bold', fontsize=28)
+        plt.xlabel("Distance from Centre of NGC 5258 $(kpc)$", weight='bold', fontsize=28)
     else:
         plt.xlabel("Distance from centre of galaxy $(kpc)$", weight='bold', fontsize=28)
     plt.ylabel("Radial velocity $(km/s)$", weight='bold', fontsize=28)
@@ -100,8 +182,8 @@ def main():  # Calling all functions in order.
 
     file_read()
 
-    calc_data(pri_galaxy_name, pri_names, pri_x, pri_y, pri_z, pri_vx, pri_vy, pri_vz, pri_r, pri_v)
-    calc_data(sec_galaxy_name, sec_names, sec_x, sec_y, sec_z, sec_vx, sec_vy, sec_vz, sec_r, sec_v)
+    find_radial_velocity(pri_galaxy_name, pri_names, pri_x, pri_y, pri_z, pri_vx, pri_vy, pri_vz, pri_r, pri_v)
+    find_radial_velocity(sec_galaxy_name, sec_names, sec_x, sec_y, sec_z, sec_vx, sec_vy, sec_vz, sec_r, sec_v)
 
     plot_rot_curve(primary, pri_r, pri_v)
     plot_rot_curve(secondary, sec_r, sec_v)

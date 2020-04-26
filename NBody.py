@@ -93,11 +93,12 @@ class Body:
         density_distribution = 0
         v_dispersion = 0
 
+        # epsilon = (0.98 * (3002 ** -0.26)) * kpc
         epsilon = 28.5 * kpc
         ln_lambda = math.log(r / (1.4 * epsilon))
 
         if causing_galaxy_id == primary:
-            density_distribution = rho_zero1 / ((r / R_s1) * (1 + (r / R_s1)) ** 2)
+            density_distribution = (102 * critical_density) / ((r / R_s1) * (1 + (r / R_s1)) ** 2)
             v_dispersion = V_max1 * ((1.4393 * (r / R_s1) ** 0.354) / (1 + 1.1756 * (r / R_s1) ** 0.725))
 
         elif causing_galaxy_id == secondary:
@@ -120,7 +121,7 @@ class Body:
     def calculate_potential_energy(self, other):
         r_xyz, r = self.find_separation(other)
 
-        return - (G * self.m * other.m) / (2*r)
+        return - (G * self.m * other.m) / (2 * r)
 
     def calculate_dmh_potential_energy(self, galaxy_id):
         halo_pe = 0
@@ -484,29 +485,28 @@ def find_dynamical_friction(bodies, galaxy_id):
                 continue
 
 
-def find_dmh_acceleration(bodies, total_pe, galaxy_list_position, galaxy_id):
+def find_dmh_acceleration(bodies, galaxy_list_position, galaxy_id, total_energies):
     other = objects[galaxy_list_position]
     for body in bodies:
         if body is other:
             continue
         else:
             body.calculate_dmh_acceleration(other, galaxy_id)
-
             if calc_energy:
-                total_pe += body.calculate_dmh_potential_energy(galaxy_id)
+                total_energies[1] += body.calculate_dmh_potential_energy(other)
 
 
-def find_all_dmh_accelerations(bodies, total_pe):
+def find_all_dmh_accelerations(bodies, total_energies):
     if primary_dmh_potential:
         pri = find_galaxy(pri_galaxy_name)
-        find_dmh_acceleration(bodies, total_pe, pri, primary)
+        find_dmh_acceleration(bodies, pri, primary, total_energies)
 
     if secondary_dmh_potential:
         sec = find_galaxy(sec_galaxy_name)
-        find_dmh_acceleration(bodies, total_pe, sec, secondary)
+        find_dmh_acceleration(bodies, sec, secondary, total_energies)
 
 
-def find_newtonian_gravitation(bodies, total_pe):
+def find_newtonian_gravitation(bodies, total_energies):
     for body in bodies:
         for other in bodies:
             if body is other:
@@ -514,22 +514,22 @@ def find_newtonian_gravitation(bodies, total_pe):
             else:
                 if (other.name != pri_disk_name) and (other.name != sec_disk_name):
                     body.calculate_newtonian_acceleration(other)
-                    if calc_energy:
-                        total_pe += body.calculate_potential_energy(other)
+                if calc_energy:
+                    total_energies[1] += body.calculate_potential_energy(other)
                 else:
                     continue
 
 
-def find_all_accelerations(bodies, total_pe):
+def find_all_accelerations(bodies, total_energies):
     for body in bodies:
         for i in range(len(body.a_xyz)):
             body.a_xyz[i] = 0
 
     if newtonian_gravity:
-        find_newtonian_gravitation(bodies, total_pe)
+        find_newtonian_gravitation(bodies, total_energies)
 
     if primary_dmh_potential or secondary_dmh_potential:
-        find_all_dmh_accelerations(bodies, total_pe)
+        find_all_dmh_accelerations(bodies, total_energies)
 
     if primary_dynamical_friction:
         find_dynamical_friction(bodies, primary)
@@ -540,7 +540,7 @@ def find_all_accelerations(bodies, total_pe):
 #######################################################################################################################
 
 
-def file_print_energies():
+def file_print_energies(step_ke, step_pe):
     if rewind:
         file = open("Backwards/RewindEnergies.txt", "w+")
     else:
@@ -550,9 +550,9 @@ def file_print_energies():
     file.close()
 
 
-def append_energies(step_ke, step_pe, total_ke, total_pe):
-    step_ke.append(total_ke)
-    step_pe.append(total_pe)
+def append_energies(step_ke, step_pe, total_energies):
+    step_ke.append(total_energies[0])
+    step_pe.append(total_energies[1])
 
 
 #######################################################################################################################
@@ -560,12 +560,10 @@ def append_energies(step_ke, step_pe, total_ke, total_pe):
 
 def file_print_all_particles(bodies, file_name):
     file = open(file_name, "w+")
-
     for body in bodies:
         file.write("{0} {1} {2} {3} {4} {5} {6} {7} {8}\n".format(body.name, body.m, body.xyz[0], body.xyz[1],
                                                                   body.xyz[2], body.v_xyz[0], body.v_xyz[1],
                                                                   body.v_xyz[2], body.colour))
-
     file.close()
 
 
@@ -584,8 +582,7 @@ def time_file_print_particles(bodies, step):
 def initial_leapfrog_step(bodies, step, step_ke, step_pe):
     time_file_print_particles(bodies, step)
 
-    total_ke = 0
-    total_pe = 0
+    total_energies = [0, 0]
 
     for body in bodies:
         for i in range(len(body.saved_xyz)):
@@ -594,17 +591,16 @@ def initial_leapfrog_step(bodies, step, step_ke, step_pe):
                 body.saved_v_xyz[i].append(body.v_xyz[i])
 
         if calc_energy:
-            total_ke += body.calculate_kinetic_energy()
+            total_energies[0] += body.calculate_kinetic_energy()
 
-    find_all_accelerations(bodies, total_pe)
+    find_all_accelerations(bodies, total_energies)
 
     if calc_energy:
-        append_energies(step_ke, step_pe, total_ke, total_pe)
+        append_energies(step_ke, step_pe, total_energies)
 
 
 def leapfrog_step(bodies, step, step_ke, step_pe):
-    total_ke = 0
-    total_pe = 0
+    total_energies = [0, 0]
 
     for body in bodies:
         for i in range(len(body.a_xyz)):
@@ -612,7 +608,7 @@ def leapfrog_step(bodies, step, step_ke, step_pe):
             body.xyz[i] += body.v_xyz[i] * time_step
             body.saved_xyz[i].append(body.xyz[i])
 
-    find_all_accelerations(bodies, total_pe)
+    find_all_accelerations(bodies, total_energies)
 
     for body in bodies:
         for i in range(len(body.a_xyz)):
@@ -621,10 +617,10 @@ def leapfrog_step(bodies, step, step_ke, step_pe):
                 body.saved_v_xyz[i].append(body.v_xyz[i])
 
         if calc_energy:
-            total_ke += body.calculate_kinetic_energy(other)
+            total_energies[0] += body.calculate_kinetic_energy()
 
     if calc_energy:
-        append_energies(step_ke, step_pe, total_ke, total_pe)
+        append_energies(step_ke, step_pe, total_energies)
 
     if step % int(interval) == 0:
         time_file_print_particles(bodies, step)
@@ -659,7 +655,7 @@ def leapfrog_loop(bodies):
         if step == no_step:
             time_file_print_particles(bodies, step)
             if calc_energy:
-                energy_print(step_ke, step_pe)
+                file_print_energies(step_ke, step_pe)
             return
 
         else:

@@ -9,17 +9,17 @@ softening = False  # Option to include softening in the simulation.
 random_disks = True  # Option to give each galaxy randomly distributed disk, as opposed to rings.
 
 # Galaxy options:
-newtonian_gravity = True  # Option to include newtonian gravity in the interaction.
+newtonian_gravity = False  # Option to include newtonian gravity in the interaction.
 primary_gal = True  # Option to include the primary galaxy in the interaction.
-primary_disk = True  # Option to include a disk of particles as part of the Primary Galaxy.
+primary_disk = False  # Option to include a disk of particles as part of the Primary Galaxy.
 primary_dmh_potential = True  # Option to include a dark matter halo for the primary galaxy.
 primary_live_dmh = False  # Option to include a live dark matter halo for the primary galaxy in the interaction.
-primary_dynamical_friction = True  # Option for secondary particles to feel dynamical friction from the primary dmh.
+primary_dynamical_friction = False  # Option for secondary particles to feel dynamical friction from the primary dmh.
 secondary_gal = True  # Option to include the secondary galaxy in the interaction.
-secondary_disk = True  # Option to include a disk of particles as part of the Secondary Galaxy.
+secondary_disk = False  # Option to include a disk of particles as part of the Secondary Galaxy.
 secondary_dmh_potential = True  # Option to include a dark matter halo for the secondary galaxy.
 secondary_live_dmh = False  # Option to include a live dark matter halo for the secondary galaxy in the interaction.
-secondary_dynamical_friction = True  # Option for primary particles to feel dynamical friction from the secondary dmh.
+secondary_dynamical_friction = False  # Option for primary particles to feel dynamical friction from the secondary dmh.
 
 # Simulation viewing options:
 centre_mid = False  # Option to view the centre, between the two galaxies, of the interaction.
@@ -42,7 +42,7 @@ critical_density = 136 * sm / (kpc ** 3)  # Critical density of the universe.
 
 # Simulation time conditions:
 time_step = 2e5 * yr  # Time between each step.
-time_run = 1.5 * Gyr  # Total time simulation is run for.
+time_run = 6 * Gyr  # Total time simulation is run for.
 if rewind:
     time_step = - time_step  # Time between each step, running backwards.
     time_run = - time_run  # Total time simulation is run for, backwards.
@@ -60,7 +60,7 @@ separation_ratio = 55 / 601.23
 
 # Primary galaxy starting conditions:
 pri_galaxy_name = "NGC5257"  # Name of the primary galaxy.
-mg1 = 0.358e11 * sm  # Mass of primary galaxy.
+mg1 = 1.12e11 * sm  # 0.358e11 * sm  # Mass of primary galaxy.
 xg1 = -32.0 * kpc  # x position of primary galaxy.
 yg1 = -38.4 * kpc  # y position of primary galaxy.
 zg1 = -93.4 * kpc  # y position of primary galaxy.
@@ -73,10 +73,10 @@ pri_path = "b-"  # Colour of path for primary galaxy being plotted.
 # Primary galaxy disk conditions:
 norm_spin1 = [0.992, 0.118, 0.048]  # Normalised spin of the primary galaxy for x, y and z directions.
 dr1 = 28.86 * kpc  # Radius of disk if primary galaxy.
-no_rings1 = 6  # Number of rings in primary galaxy.
+no_rings1 = 4  # Number of rings in primary galaxy.
 ring_rad1 = dr1 / no_rings1  # Radius of innermost ring from primary galaxy centre.
 no_rp1 = 6  # Number of particles in innermost ring of primary galaxy.
-tot_dp1 = 1500  # no_rp1 * (sum(range(0, no_rings1 + 1)))  # Total number of particles in a disk of primary galaxy.
+tot_dp1 = no_rp1 * (sum(range(0, no_rings1 + 1)))  # 1500  # Total number of particles in a disk of primary galaxy.
 mdp1 = 1  # Mass of each particle in the primary disk.
 mu1 = 0.3  # Mean value for the gaussian distribution of particles in the primary galaxy.
 sigma1 = 0.3  # Variance value for the gaussian distribution of particles in the primary galaxy.
@@ -95,7 +95,7 @@ pri_dmh_file = "pri_live_dmh.txt"  # Name of the file that contains the particle
 
 # Secondary galaxy starting conditions:
 sec_galaxy_name = "NGC5258"  # Name of the secondary galaxy.
-mg2 = 0.406e11 * sm  # Mass of secondary galaxy.
+mg2 = 2.46e11 * sm  # 0.406e11 * sm  # Mass of secondary galaxy.
 xg2 = 0 * kpc  # x position of secondary galaxy.
 yg2 = 0 * kpc  # y position of secondary galaxy.
 zg2 = 0 * kpc  # z position of secondary galaxy.
@@ -108,10 +108,10 @@ sec_path = "r-"  # Colour of path for secondary galaxy being plotted.
 # Secondary galaxy disk conditions:
 norm_spin2 = [-0.547, 0.800, 0.246]  # Normalised spin of the primary galaxy for x, y and z directions.
 dr2 = 24.215 * kpc  # Radius of disk if secondary galaxy.
-no_rings2 = 6  # Number of rings in secondary galaxy.
+no_rings2 = 4  # Number of rings in secondary galaxy.
 ring_rad2 = dr2 / no_rings2  # Radius of innermost ring from secondary galaxy centre.
 no_rp2 = 6  # Number of particles in innermost ring of secondary galaxy.
-tot_dp2 = 1500  # no_rp2 * (sum(range(0, no_rings2 + 1)))  # Total number of particles in a disk of secondary galaxy.
+tot_dp2 = no_rp2 * (sum(range(0, no_rings2 + 1)))  # 1500  # Total number of particles in a disk of secondary galaxy.
 mdp2 = 1  # 7e9 * sm / tot_dp2 # Mass of each particle in the secondary disk.
 mu2 = 0.3  # Mean value for the gaussian distribution of particles in the secondary galaxy.
 sigma2 = 0.3  # Variance value for the gaussian distribution of particles in the secondary galaxy.
@@ -176,13 +176,7 @@ if secondary_isolation:
     vzg2 = 0
 
 '''
-To-Do list:
--Put in Barnes-Hut algorithm.
-
--Clean up all other files. Specify which type of particles plotted in rotation curve plotter.
--Make sure all logic checks are proper.
--Make more cases where initial conditions are forcefully set.
-
--Put all comments in blocks above blocks of code, unless relating to a particular line.
--Put everything into classes. Move classes out of main file, into their own one. Research classes.
+Incorrect initial conditions leads to errors with interaction.
+Imprecise parameters used in equations will also contribute to it.
+Not enough time to generate all the initial conditions required or desired.
 '''

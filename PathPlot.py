@@ -12,25 +12,39 @@ SecPath = [[], [], []]
 
 Centre = [[0, 0], [0, 0], [0, 0]]
 
+fraction = 6 / 6
+
 SecGalCentre = True
 TwoD = True
 
 
 def path_read():
+    max = round(30000 * fraction)
+    i = 0
+    j = 0
+
     file1 = open("Forwards/PriGalPath.txt", "r")
+    # file1 = open("Backwards/RWPriGalPath.txt", "r")
     for line in file1:
         data1 = line.strip().split()
         PriPath[0].append(float(data1[0]))
         PriPath[1].append(float(data1[1]))
         PriPath[2].append(float(data1[2]))
+        i += 1
+        if i > max:
+            break
     file1.close()
 
     file2 = open("Forwards/SecGalPath.txt", "r")
+    # file2 = open("Backwards/RWSecGalPath.txt", "r")
     for line in file2:
         data2 = line.strip().split()
         SecPath[0].append(float(data2[0]))
         SecPath[1].append(float(data2[1]))
         SecPath[2].append(float(data2[2]))
+        j += 1
+        if j > max:
+            break
     file2.close()
 
 
@@ -110,14 +124,18 @@ def no_axis_3D_plot():
 def plot_2D():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.plot(PriPath[0], PriPath[1], color='blue', linewidth=9)
+    set1, = ax.plot(PriPath[0], PriPath[1], color='blue', linewidth=10, label='NGC 5257')
     if SecGalCentre:
-        ax.scatter(0, 0, color='red', s=150)
+        set2 = ax.scatter(0, 0, color='red', s=250, label='NGC 5258')
+        lgnd = ax.legend(handles=[set1, set2], fontsize=24, markerscale=3)
+        lgnd.legendHandles[1]._sizes = [220]
     else:
-        ax.plot(SecPath[0], SecPath[1], color='red', linewidth=9)
+        ax.plot(SecPath[0], SecPath[1], color='red', linewidth=10, label='NGC 5258')
+        ax.legend(fontsize=28, markerscale=3)
     ax.set_xlabel('X - In Plane of Interaction $(kpc)$', fontsize=30, weight='bold')
     ax.set_ylabel('Y - In Plane of Interaction $(kpc)$', fontsize=30, weight='bold')
     ax.tick_params(labelsize=28)
+
     plt.show()
 
 

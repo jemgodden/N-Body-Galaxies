@@ -9,15 +9,15 @@ from mpl_toolkits.mplot3d import Axes3D
 from scipy.optimize import curve_fit
 from IntData import *
 
-pericentre = []
-time_of_pericentre = []
+# pericentre = []
+# time_of_pericentre = []
 
-# pericentre1 = []
-# time_of_pericentre1 = []
-# pericentre2 = []
-# time_of_pericentre2 = []
-# pericentre3 = []
-# time_of_pericentre3 = []
+pericentre1 = []
+time_of_pericentre1 = []
+pericentre2 = []
+time_of_pericentre2 = []
+pericentre3 = []
+time_of_pericentre3 = []
 # pericentre4 = []
 # time_of_pericentre4 = []
 
@@ -43,7 +43,7 @@ def read_file(file_name, pericentre, time_of_pericentre):
                 pericentre.append(float(data[12]))
                 time_of_pericentre.append(-float(data[13]))
                 separation.append(float(data[14]))
-                ratio.append(float(data[18]))
+                # ratio.append(float(data[18]))
                 # if 0.2 < -float(data[13]) < 0.3 and float(data[12]) < 50:
                 #     usable_lines.append(line_no)
     file.close()
@@ -51,17 +51,18 @@ def read_file(file_name, pericentre, time_of_pericentre):
 
 def plot_pericentre_info():
     fig, ax = plt.subplots()
-    ax.plot(pericentre, time_of_pericentre, 'k.', label="Simulation Set")
-    # set2, = ax.plot(pericentre2, time_of_pericentre2, 'b.', label="Simulation Set 2")
-    # set1, = ax.plot(pericentre1, time_of_pericentre1, 'g.', label="Simulation Set 1")
-    # set3, = ax.plot(pericentre3, time_of_pericentre3, 'c.', label="Simulation Set 3")
-    # set4, = ax.plot(pericentre4, time_of_pericentre4, 'm.', label="Simulation Set 4")
+    # ax.plot(pericentre, time_of_pericentre, 'k.', label="Simulation Set")
+    set1, = ax.plot(pericentre1, time_of_pericentre1, 'b.', label="Simulation Set 1")
+    set2, = ax.plot(pericentre2, time_of_pericentre2, 'c.', label="Simulation Set 2")
+    set3, = ax.plot(pericentre3, time_of_pericentre3, 'g.', label="Simulation Set 3")
+    set4 = ax.scatter(37.73, 0.2234, c='y', s=100, label="Result Used", zorder=2.5)
     ax.set_xlim([0, None])
     ax.set_ylim([0, None])
-    ax.fill_between([10, 40], [0.3, 0.3], [0.2, 0.2], fc='red', alpha=0.5)
-    ax.set_xlabel("Pericentre $(kpc)$", fontsize=25, weight='bold')
+    set0 = ax.fill_between([10, 40], [0.3, 0.3], [0.2, 0.2], fc='red', alpha=0.25, label="Reasonable Results", zorder=3)
+    ax.set_xlabel("Pericentre Separation $(kpc)$", fontsize=25, weight='bold')
     ax.set_ylabel("Lookback Time $(Gyrs)$", fontsize=25, weight='bold')
-    # ax.legend(handles=[set1, set2, set3, set4], fontsize=28, markerscale=3)
+    lgnd = ax.legend(handles=[set0, set1, set2, set3, set4], fontsize=24, markerscale=3, loc='lower left')
+    lgnd.legendHandles[4]._sizes = [80]
     ax.tick_params(labelsize=22)
 
 
@@ -119,16 +120,16 @@ def find_min_pericentre_time():
 
 def main():  # Calling all functions in order.
 
-    read_file("Automation_Data7.txt", pericentre, time_of_pericentre)
+    # read_file("Automation_Data7.txt", pericentre, time_of_pericentre)
 
-    # read_file("Initial_Conditions_Automation/Automation_Data1.txt", pericentre1, time_of_pericentre1)
-    # read_file("Initial_Conditions_Automation/Automation_Data2.txt", pericentre2, time_of_pericentre2)
-    # read_file("Initial_Conditions_Automation/Automation_Data3.txt", pericentre3, time_of_pericentre3)
+    read_file("Automation_Data5.txt", pericentre1, time_of_pericentre1)
+    read_file("Automation_Data6.txt", pericentre2, time_of_pericentre2)
+    read_file("Automation_Data7.txt", pericentre3, time_of_pericentre3)
     # read_file("Initial_Conditions_Automation/Automation_Data4.txt", pericentre4, time_of_pericentre4)
 
-    find_min_pericentre_time()
+    # find_min_pericentre_time()
 
-    plot_pericentre_info_cb()
+    # plot_pericentre_info_cb()
     plot_pericentre_info()
     # plot_separation_pericentre_info()
     # plot_separation_time_info()

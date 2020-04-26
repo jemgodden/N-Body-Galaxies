@@ -29,9 +29,9 @@ point_size = 20
 font_size = 18
 label_size = 18
 
-x_los = [0, 4.113]
-y_los = [0, -8.853]
-z_los = [0, -2.178]
+x_los = [0, 41.13]
+y_los = [0, -88.53]
+z_los = [0, -21.78]
 
 
 def find_galaxy(galaxy_name, names):  # Finds position of a galaxy in the list of bodies.
@@ -108,19 +108,67 @@ def get_galaxy_data():
     change_units()
 
 
+def find_specific_separation(xi, yi, zi, xj, yj, zj):
+    rx = xi - xj
+    ry = yi - yj
+    rz = zi - zj
+    r = math.sqrt((rx ** 2) + (ry ** 2) + (rz ** 2))
+    return r
+
+
+def refine():
+    pri = find_galaxy(pri_galaxy_name, pri_names)
+    sec = find_galaxy(sec_galaxy_name, sec_names)
+
+    pri_list = []
+    sec_list = []
+
+    for i in range(len(pri_x)):
+        if i == pri:
+            continue
+        else:
+            pri_r = find_specific_separation(pri_x[pri], pri_y[pri], pri_z[pri], pri_x[i], pri_y[i], pri_z[i])
+            sec_r = find_specific_separation(sec_x[sec], sec_y[sec], sec_z[sec], pri_x[i], pri_y[i], pri_z[i])
+            if pri_r > 200 and sec_r > 200:
+                pri_list.append(i)
+
+    for j in range(len(sec_x)):
+        if j == sec:
+            continue
+        else:
+            pri_r = find_specific_separation(pri_x[pri], pri_y[pri], pri_z[pri], sec_x[j], sec_y[j], sec_z[j])
+            sec_r = find_specific_separation(sec_x[sec], sec_y[sec], sec_z[sec], sec_x[j], sec_y[j], sec_z[j])
+            if pri_r > 200 and sec_r > 200:
+                sec_list.append(j)
+
+    for m in range(len(pri_list)-1, 0, -1):
+        pri_names.pop(pri_list[m])
+        pri_x.pop(pri_list[m])
+        pri_y.pop(pri_list[m])
+        pri_z.pop(pri_list[m])
+        pri_rad.pop(pri_list[m])
+
+    for n in range(len(sec_list)-1, 0, -1):
+        sec_names.pop(sec_list[n])
+        sec_x.pop(sec_list[n])
+        sec_y.pop(sec_list[n])
+        sec_z.pop(sec_list[n])
+        sec_rad.pop(sec_list[n])
+
+
 def plot():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
-    pri_plot = ax.scatter(pri_x, pri_y, pri_z, c=pri_rad, cmap='Blues', s=point_size, depthshade=False)
-    sec_plot = ax.scatter(sec_x, sec_y, sec_z, c=sec_rad, cmap='Reds', s=point_size, depthshade=False)
+    pri_plot = ax.scatter(pri_x, pri_y, pri_z, c=pri_rad, cmap='Blues', s=point_size, depthshade=False, zorder=2.5)
+    sec_plot = ax.scatter(sec_x, sec_y, sec_z, c=sec_rad, cmap='Reds', s=point_size, depthshade=False, zorder=2.5)
     # ax.plot(x_los, y_los, z_los, 'k-')
     ax.set_axis_off()
 
     pri_cb = fig.colorbar(pri_plot)
-    pri_cb.set_label(label='Initial Radius from Centre of NGC5257 $(kpc)$', size=18)
+    pri_cb.set_label(label='Initial Radius from Centre of NGC 5257 $(kpc)$', size=18)
     pri_cb.ax.tick_params(labelsize=18)
     sec_cb = fig.colorbar(sec_plot)
-    sec_cb.set_label(label='Initial radius from centre of NGC5258 $(kpc)$', size=18)
+    sec_cb.set_label(label='Initial radius from centre of NGC 5258 $(kpc)$', size=18)
     sec_cb.ax.tick_params(labelsize=18)
     plt.show()
 
@@ -143,6 +191,8 @@ def main():  # Calling all functions in order.
     point_read(final_image_time)
 
     get_galaxy_data()
+
+    refine()
 
     plot()
 
