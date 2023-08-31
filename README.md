@@ -1,47 +1,31 @@
-# MPhys-Project-N-Body-Code
+# Gravitational Interactions of Galaxies - N-Body Code
 
-# Downloading
+## Background
 
-The easiest way to download the code is to press the download button on the home page of the GitHub repository.
+This repository contains code written for my MPhys project that researched gravitational interactions of galaxies. 
+Specifically, the interaction of Arp 240 (between NGC 5257/58 galaxies) was being investigated. 
 
-# Requirements
+The aim of the project was to recreate the interaction the galaxies are currently experiencing in order to understand 
+both how the interaction came about, and how it will look in the future. This can help improve our understanding of
+these types of interactions, including how they come about and what their results are, as well as predicting future 
+interactions. Additionally, it may help deepen our understanding of dark matter and it's effects.
 
-To run the program a Python 3 compiler is required, along with the following libraries: Math, Time, MatPlotLib, NumPy, SciPy and OS.
+The dissertation is attached in this repository (MPhys-Dissertation.pdf), for those interested.
 
-# Use
+The code in this repository was written as a tool to conduct n-body numerical simulations of the galaxies' gravitational 
+interactions.
 
-This code does not currently support specifying parameters in the code from the command line. Instead, parameters, commonly stated at the top of the file, should be edited to the desired values before being run.
+## Usage
 
-# Log
+The best way to use this code is to download it from GitHub and run the NBody.py file locally.
 
-The N-Body code written to simulate interacting galaxies, for MPhys project.
+The parameters of the simulation/interaction can be updated in the config.py file.
 
-Sixth generation of an N-Body code for modelling galaxy interactions. Each galaxy has a disk of test particles that do not generate a force on other bodies. The disk plane can be rotated in the 3d area using normalised spin values in IntData.py.
+You can observe the simulation using the plotting scripts in the /plotting directory.
 
-Force on each body is found and used to give that body a new velocity and position, at each time step. Uses velocity verlet leapfrog method for calculating velocities and positions during a time step.
+## NOTE
 
-This code runs a simulation and outputs particle positions at image time step and paths to text file to be plotted.
+This is legacy code! It should still run, but it is by no means an efficient N-Body simulation.
 
-Interaction options in IntData.
-
-Images plotted by separate function.
-
-Dark matter halo potential for each galaxy implemented, acting on all particles other than galaxy centre.
-
-Added disk plane rotations.
-
-Added stable randomly distributed galaxy disks.
-
-Added Dynamical Friction.
-
-Stripped NBody Code and automation for finding initial conditions.
-
-Density plotters for galaxy and disk analysis.
-
-Analysis function to see disk particle radii stripped by other galaxy.
-
-Extra rotation curve plotter.
-
-Function to view galaxy paths in 2D plane of interaction.
-
-Rotation curve corrections.
+Additionally, it is not particularly well written code as it was the first large programming project I had written in Python. 
+It is not demonstrative of my current programming ability.
