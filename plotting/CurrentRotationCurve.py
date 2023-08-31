@@ -7,7 +7,7 @@ import time
 import os
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.optimize import curve_fit
-from IntData import *
+from Config import *
 
 pri_names = []
 pri_x = []

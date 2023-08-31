@@ -7,7 +7,7 @@ import time
 import os
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.optimize import curve_fit
-from IntData import *
+from Config import *
 
 names = []
 x = []
@@ -25,7 +25,7 @@ v = []  # List of velocities of particles.
 def file_read():  # Reads information about the path of the galaxies in the interaction.
     print("\nReading files...\n\n")
     if primary_isolation:
-        file1 = open("Primary_Galaxy.txt", "r")
+        file1 = open("../data/Primary_Galaxy.txt", "r")
         for line in file1:  # Goes through file line by line.
             data1 = line.strip().split()
             names.append(data1[0])
@@ -38,7 +38,7 @@ def file_read():  # Reads information about the path of the galaxies in the inte
         file1.close()
 
     if secondary_isolation:
-        file2 = open("Secondary_Galaxy.txt", "r")
+        file2 = open("../data/Secondary_Galaxy.txt", "r")
         for line in file2:  # Goes through file line by line.
             data2 = line.strip().split()
             names.append(data2[0])

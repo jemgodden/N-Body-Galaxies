@@ -2,7 +2,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from IntData import *
+from Config import *
 
 names = []
 x = []
@@ -53,7 +53,7 @@ def path_read():  # Reads information about the path of the galaxies in the inte
     if rewind:
         file1 = open("Backwards/RWPriGalPath.txt", "r")
     else:
-        file1 = open("Forwards/PriGalPath.txt",
+        file1 = open("../Forwards/PriGalPath.txt",
                      "r")  # Opens primary galaxy file containing positions at all time steps.
     for line in file1:  # Goes through file line by line.
         data1 = line.strip().split()
@@ -65,7 +65,7 @@ def path_read():  # Reads information about the path of the galaxies in the inte
     if rewind:
         file2 = open("Backwards/RWSecGalPath.txt", "r")
     else:
-        file2 = open("Forwards/SecGalPath.txt",
+        file2 = open("../Forwards/SecGalPath.txt",
                      "r")  # Opens secondary galaxy file containing positions at all time steps.
     for line in file2:  # Goes through file line by line.
         data2 = line.strip().split()
@@ -259,7 +259,7 @@ def info():  # Prints information on interaction using files made during simulat
     if rewind:
         file = open("Backwards/RewindPericentreInfo.txt")
     else:
-        file = open("Forwards/PericentreInfo.txt")
+        file = open("../Forwards/PericentreInfo.txt")
     for line in file:  # Goes through file line by line.
         data = line.strip().split()
         total_dp1 = int(data[0])

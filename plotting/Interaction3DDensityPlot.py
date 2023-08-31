@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cmx
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from IntData import *
+from Config import *
 
 names = []
 x = []

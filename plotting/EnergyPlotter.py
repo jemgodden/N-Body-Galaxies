@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import time
 import os
 from mpl_toolkits.mplot3d import Axes3D
-from IntData import *
+from Config import *
 
 ke = []  # List of values for kinetic energy.
 pe = []  # List of values for potential energy.
@@ -17,7 +17,7 @@ plot_step = []  # List of each time step, numbered.
 
 def option_checks():
     if energy_fwds_bwds and rewind:  # Other wise will show backwards data for both lines on graph.
-        print("\nPlease set rewind to 'True' in IntData.py, in order to not get the same data plotted twice.")
+        print("\nPlease set rewind to 'True' in Config.py, in order to not get the same data plotted twice.")
         exit(1)
 
 

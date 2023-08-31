@@ -5,7 +5,7 @@ import time
 import os
 import random
 from mpl_toolkits.mplot3d import Axes3D
-from IntData import *
+from Config import *
 
 objects = []  # List of all objects in galaxy.
 
@@ -797,10 +797,10 @@ def isolation_simulation():
     print_interaction_info()
 
     if primary_isolation:
-        file_print_all_particles(objects, "Primary_Galaxy.txt")
+        file_print_all_particles(objects, "data/Primary_Galaxy.txt")
         print("The primary galaxy was simulated in isolation.\n")
     elif secondary_isolation:
-        file_print_all_particles(objects, "Secondary_Galaxy.txt")
+        file_print_all_particles(objects, "data/Secondary_Galaxy.txt")
         print("The secondary galaxy was simulated in isolation.\n")
 
 
@@ -814,8 +814,8 @@ def file_simulation():
 
 
 def galaxy_files_simulation():
-    read_galaxy_file("Primary_Galaxy.txt")
-    read_galaxy_file("Secondary_Galaxy.txt")
+    read_galaxy_file("data/Primary_Galaxy.txt")
+    read_galaxy_file("data/Secondary_Galaxy.txt")
 
     leapfrog_loop(objects)
 
