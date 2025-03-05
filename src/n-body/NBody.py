@@ -163,10 +163,10 @@ def option_checks():
 
 
 def make_directories():
-    if not os.path.exists('../Forwards'):
-        os.makedirs('../Forwards')
-    if not os.path.exists('../Backwards'):
-        os.makedirs('../Backwards')
+    if not os.path.exists('../../Forwards'):
+        os.makedirs('../../Forwards')
+    if not os.path.exists('../../Backwards'):
+        os.makedirs('../../Backwards')
 
 
 #######################################################################################################################
@@ -681,14 +681,14 @@ def file_print_galaxy_paths():
         if rewind:
             file_print_path("Backwards/RWPriGalPath.txt", pri)
         else:
-            file_print_path("../Forwards/PriGalPath.txt", pri)
+            file_print_path("../../Forwards/PriGalPath.txt", pri)
 
     if secondary_gal:
         sec = find_galaxy(sec_galaxy_name)
         if rewind:
             file_print_path("Backwards/RWSecGalPath.txt", sec)
         else:
-            file_print_path("../Forwards/SecGalPath.txt", sec)
+            file_print_path("../../Forwards/SecGalPath.txt", sec)
 
 
 #######################################################################################################################
@@ -781,7 +781,7 @@ def print_interaction_info():
     if rewind:
         file = open("Backwards/RewindPericentreInfo.txt", "w+")
     else:
-        file = open("../Forwards/PericentreInfo.txt", "w+")
+        file = open("../../Forwards/PericentreInfo.txt", "w+")
     file.write("{0} {1} {2} {3} {4}".format(tot_dp1, tot_dp2, tot_part, pericentre, time_of_pericentre))
     file.close()
 
@@ -797,10 +797,10 @@ def isolation_simulation():
     print_interaction_info()
 
     if primary_isolation:
-        file_print_all_particles(objects, "../data/Primary_Galaxy.txt")
+        file_print_all_particles(objects, "../../data/Primary_Galaxy.txt")
         print("The primary galaxy was simulated in isolation.\n")
     elif secondary_isolation:
-        file_print_all_particles(objects, "../data/Secondary_Galaxy.txt")
+        file_print_all_particles(objects, "../../data/Secondary_Galaxy.txt")
         print("The secondary galaxy was simulated in isolation.\n")
 
 
@@ -814,8 +814,8 @@ def file_simulation():
 
 
 def galaxy_files_simulation():
-    read_galaxy_file("../data/Primary_Galaxy.txt")
-    read_galaxy_file("../data/Secondary_Galaxy.txt")
+    read_galaxy_file("../../data/Primary_Galaxy.txt")
+    read_galaxy_file("../../data/Secondary_Galaxy.txt")
 
     leapfrog_loop(objects)
 
