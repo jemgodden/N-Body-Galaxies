@@ -23,7 +23,7 @@ def path_read():
     i = 0
     j = 0
 
-    file1 = open("../Forwards/PriGalPath.txt", "r")
+    file1 = open("../../Forwards/PriGalPath.txt", "r")
     # file1 = open("Backwards/RWPriGalPath.txt", "r")
     for line in file1:
         data1 = line.strip().split()
@@ -35,7 +35,7 @@ def path_read():
             break
     file1.close()
 
-    file2 = open("../Forwards/SecGalPath.txt", "r")
+    file2 = open("../../Forwards/SecGalPath.txt", "r")
     # file2 = open("Backwards/RWSecGalPath.txt", "r")
     for line in file2:
         data2 = line.strip().split()
